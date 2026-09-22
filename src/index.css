@@ -1,0 +1,95 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* ── fimoPAY Design Tokens ──────────────────────────────────── */
+:root {
+  /* Canvas */
+  --bg: #f4f7fb;
+  --bg-gradient: linear-gradient(160deg, #eef4ff 0%, #f4f7fb 45%, #f0f6fe 100%);
+
+  /* Surfaces — frosted glass on light */
+  --surface: rgba(255, 255, 255, 0.78);
+  --surface-strong: rgba(255, 255, 255, 0.94);
+  --surface-muted: rgba(241, 246, 255, 0.72);
+
+  /* Ink */
+  --ink:   #0f2340;
+  --ink-2: #1e3a5f;
+  --muted: #4d6484;
+  --subtle: #7a92aa;
+
+  /* Borders */
+  --border: rgba(15, 35, 64, 0.09);
+  --border-strong: rgba(15, 35, 64, 0.22);
+
+  /* Brand — fimoPAY blue, never harsh */
+  --accent:       #1a6fff;
+  --accent-soft:  rgba(26, 111, 255, 0.10);
+  --accent-hover: #1259e0;
+  --accent-text:  #ffffff;
+
+  /* Semantic */
+  --success: #0f7a45;
+  --success-bg: rgba(15, 122, 69, 0.10);
+  --danger:  #c0273a;
+  --danger-bg: rgba(192, 39, 58, 0.10);
+  --warning-bg: rgba(204, 140, 0, 0.10);
+  --warning-text: #8a5c00;
+
+  /* Focus ring */
+  --focus: #7ab4ff;
+
+  /* Spectral strip (consumer only, 2-4px) */
+  --spectral: linear-gradient(90deg, #5fbeff, #4a8cf7, #7b6cf7, #b06af0, #f05c6b);
+}
+
+/* ── Reset & Base ───────────────────────────────────────────── */
+*, *::before, *::after { box-sizing: border-box; }
+
+html { -webkit-tap-highlight-color: transparent; }
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  font-family: 'DM Sans', system-ui, sans-serif;
+  background: var(--bg-gradient);
+  color: var(--ink);
+  -webkit-font-smoothing: antialiased;
+}
+
+/* ── Typography helpers ─────────────────────────────────────── */
+.display {
+  font-family: 'Space Grotesk', sans-serif;
+  letter-spacing: -0.025em;
+}
+.mono {
+  font-family: 'JetBrains Mono', 'Menlo', monospace;
+}
+
+/* ── Glass surfaces ─────────────────────────────────────────── */
+.glass-card {
+  background: var(--surface);
+  backdrop-filter: blur(24px) saturate(180%);
+  -webkit-backdrop-filter: blur(24px) saturate(180%);
+  border: 1px solid rgba(255, 255, 255, 0.72);
+  box-shadow: 0 4px 24px rgba(15, 35, 64, 0.07), inset 0 1px 0 rgba(255,255,255,0.6);
+}
+.glass-inner {
+  background: rgba(255, 255, 255, 0.52);
+  border: 1px solid rgba(255, 255, 255, 0.60);
+}
+
+/* ── Sonner toast override (light) ──────────────────────────── */
+[data-sonner-toaster] [data-type="error"]   { background: #fff0f2 !important; color: var(--danger)  !important; }
+[data-sonner-toaster] [data-type="success"] { background: #f0fff6 !important; color: var(--success) !important; }
+
+/* ── QR scan line animation ─────────────────────────────────── */
+@keyframes scan-line {
+  0%   { transform: translateY(-48px); opacity: 0.9; }
+  50%  { opacity: 1; }
+  100% { transform: translateY(48px);  opacity: 0.9; }
+}
+.animate-scan-line {
+  animation: scan-line 1.6s ease-in-out infinite alternate;
+}
