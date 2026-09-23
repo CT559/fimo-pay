@@ -1,7 +1,7 @@
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 import { ConnectKitButton } from 'connectkit'
 import { useAccount } from 'wagmi'
-import { Home, Zap, Send, Settings, Wifi, WifiOff } from 'lucide-react'
+import { Home, Zap, Send, Settings, Wifi, User, Sun, Moon } from 'lucide-react'
 import { TokenUSDC } from '@web3icons/react'
 import { LogoWithFallback } from './components/FimoLogo'
 import PaymentScreen from './components/PaymentScreen'
@@ -12,6 +12,61 @@ import type { LangCode } from './i18n'
 import { t } from './i18n'
 
 type Tab = 'home' | 'payment' | 'remittance' | 'settings'
+
+/* ── Wave background — tái tạo nền fimoPAY brand ──────────────── */
+function WaveBg({ dark }: { dark: boolean }) {
+  const c1 = dark ? 'rgba(77,163,255,0.10)' : 'rgba(255,255,255,0.60)'
+  const c2 = dark ? 'rgba(26,111,255,0.08)' : 'rgba(91,190,255,0.32)'
+  const c3 = dark ? 'rgba(91,190,255,0.06)' : 'rgba(26,111,255,0.15)'
+  return (
+    <div className="wave-bg" aria-hidden="true">
+      {/* Large arc top-left */}
+      <div style={{
+        position:'absolute', top:'-18%', left:'-12%',
+        width:'75vw', height:'75vw', maxWidth:600, maxHeight:600,
+        borderRadius:'50%',
+        border:`2px solid ${c1}`,
+        filter:'blur(1px)',
+      }}/>
+      {/* Medium arc bottom-right */}
+      <div style={{
+        position:'absolute', bottom:'-15%', right:'-10%',
+        width:'60vw', height:'60vw', maxWidth:480, maxHeight:480,
+        borderRadius:'50%',
+        border:`2px solid ${c2}`,
+        filter:'blur(1px)',
+      }}/>
+      {/* Small arc center */}
+      <div style={{
+        position:'absolute', top:'38%', left:'52%',
+        width:'40vw', height:'40vw', maxWidth:320, maxHeight:320,
+        borderRadius:'50%',
+        border:`1.5px solid ${c3}`,
+        filter:'blur(0.5px)',
+      }}/>
+      {/* Soft radial glow top-right */}
+      <div style={{
+        position:'absolute', top:'-5%', right:'-5%',
+        width:360, height:360,
+        borderRadius:'50%',
+        background: dark
+          ? 'radial-gradient(circle, rgba(26,111,255,0.18) 0%, transparent 65%)'
+          : 'radial-gradient(circle, rgba(26,111,255,0.14) 0%, transparent 65%)',
+        filter:'blur(48px)',
+      }}/>
+      {/* Soft radial glow bottom-left */}
+      <div style={{
+        position:'absolute', bottom:'8%', left:'-8%',
+        width:300, height:300,
+        borderRadius:'50%',
+        background: dark
+          ? 'radial-gradient(circle, rgba(91,190,255,0.10) 0%, transparent 68%)'
+          : 'radial-gradient(circle, rgba(91,190,255,0.22) 0%, transparent 68%)',
+        filter:'blur(40px)',
+      }}/>
+    </div>
+  )
+}
 
 // ── Service card icons (realistic, sát thực tế) ───────────────
 const SERVICE_ICONS = [
@@ -55,35 +110,12 @@ const SERVICE_ICONS = [
   ),
 ]
 
-// ── Background blobs (soft, non-intrusive) ────────────────────
-function AppBackground() {
-  return (
-    <div className="fixed inset-0 pointer-events-none overflow-hidden">
-      <div style={{
-        position: 'absolute', top: '-5%', right: '-8%',
-        width: 360, height: 360, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(26,111,255,0.10) 0%, transparent 68%)',
-        filter: 'blur(60px)',
-      }} />
-      <div style={{
-        position: 'absolute', bottom: '10%', left: '-10%',
-        width: 300, height: 300, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(91,190,255,0.10) 0%, transparent 70%)',
-        filter: 'blur(56px)',
-      }} />
-      <div style={{
-        position: 'absolute', top: '40%', left: '50%',
-        width: 200, height: 200, borderRadius: '50%',
-        background: 'radial-gradient(circle, rgba(26,111,255,0.05) 0%, transparent 70%)',
-        filter: 'blur(48px)',
-      }} />
-    </div>
-  )
-}
+
 
 // ── Home screen ───────────────────────────────────────────────
 interface HomeScreenProps {
   lang: LangCode
+  dark: boolean
   onNavigate: (tab: Tab) => void
 }
 
@@ -120,7 +152,7 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
             <div className="flex items-center gap-1.5">
               {isConnected
                 ? <Wifi size={12} style={{ color: 'var(--success)' }} />
-                : <WifiOff size={12} style={{ color: 'var(--subtle)' }} />}
+                : <User size={12} style={{ color: 'var(--subtle)' }} />}
               <span className="mono text-[11px] font-medium"
                 style={{ color: isConnected ? 'var(--ink-2)' : 'var(--subtle)' }}>
                 {isConnected ? shortAddr : t(lang, 'home_connect_hint_short')}
@@ -238,14 +270,45 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
         </button>
       </div>
 
-      {/* ── Connect hint ── */}
-      {!isConnected && (
-        <div className="rounded-2xl px-4 py-3 flex gap-3 items-start"
-          style={{ background: 'var(--warning-bg)', border: '1px solid rgba(204,140,0,0.18)' }}>
-          <WifiOff size={14} className="shrink-0 mt-0.5" style={{ color: 'var(--warning-text)' }} />
-          <p className="text-[12px] leading-relaxed" style={{ color: 'var(--warning-text)' }}>
+      {/* ── Onboarding / KYC banner ── */}
+      {!isConnected ? (
+        /* Chưa đăng nhập — hướng dẫn đơn giản như Zalo/WhatsApp */
+        <div className="rounded-2xl px-4 py-3.5 flex gap-3 items-center"
+          style={{ background: 'var(--accent-soft)', border: '1px solid rgba(26,111,255,0.14)' }}>
+          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
+            style={{ background: 'var(--accent)' }}>
+            <User size={15} color="white" />
+          </div>
+          <p className="text-[13px] font-medium leading-snug flex-1" style={{ color: 'var(--ink)' }}>
             {t(lang, 'home_connect_hint')}
           </p>
+        </div>
+      ) : (
+        /* Đã đăng nhập nhưng chưa KYC — nhắc xác minh ngay */
+        <div className="rounded-2xl px-4 py-3.5 flex gap-3 items-center cursor-pointer
+          hover:scale-[1.01] active:scale-[0.99] transition-transform"
+          onClick={() => onNavigate('settings')}
+          style={{ background: 'rgba(251,191,36,0.10)', border: '1px solid rgba(217,119,6,0.22)' }}>
+          <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
+            style={{ background: 'rgba(217,119,6,0.15)' }}>
+            <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+              strokeWidth="2.2" strokeLinecap="round" strokeLinejoin="round">
+              <path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/>
+              <circle cx="12" cy="7" r="4"/>
+            </svg>
+          </div>
+          <div className="flex-1 min-w-0">
+            <p className="text-[13px] font-semibold" style={{ color: '#92400e' }}>
+              Xác minh danh tính để dùng đầy đủ tính năng
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: '#b45309' }}>
+              CCCD / hộ chiếu · xét duyệt nhanh → nâng hạn mức
+            </p>
+          </div>
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706"
+            strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+            <path d="M9 18l6-6-6-6"/>
+          </svg>
         </div>
       )}
     </div>
@@ -256,6 +319,19 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
 export default function App() {
   const [activeTab, setActiveTab] = useState<Tab>('home')
   const [lang, setLang] = useState<LangCode>('vi')
+  const [dark, setDark] = useState(() =>
+    typeof window !== 'undefined' && window.matchMedia('(prefers-color-scheme: dark)').matches
+  )
+
+  // Sync .dark class on <html> for CSS variables
+  useEffect(() => {
+    const root = document.documentElement
+    if (dark) {
+      root.classList.add('dark')
+    } else {
+      root.classList.remove('dark')
+    }
+  }, [dark])
 
   const NAV_ITEMS: { id: Tab; labelKey: 'nav_home' | 'nav_pay' | 'nav_send' | 'nav_settings'; icon: typeof Home }[] = [
     { id: 'home',       labelKey: 'nav_home',     icon: Home },
@@ -265,27 +341,72 @@ export default function App() {
   ]
 
   return (
-    <div className="relative min-h-dvh" style={{ background: 'var(--bg-gradient)' }}>
-      <AppBackground />
+    <div className={`relative min-h-dvh theme-transition`}
+      style={{ background: 'var(--bg)', backgroundImage: 'var(--bg-gradient)', backgroundAttachment: 'fixed' }}>
+      <WaveBg dark={dark} />
 
       {/* ── Header ── */}
       <header className="sticky top-0 z-20 px-4 py-3 flex items-center justify-between"
         style={{
-          background: 'rgba(244,247,251,0.85)',
-          backdropFilter: 'blur(20px)',
-          WebkitBackdropFilter: 'blur(20px)',
+          background: 'var(--header-bg)',
+          backdropFilter: 'blur(24px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(24px) saturate(160%)',
           borderBottom: '1px solid var(--border)',
         }}>
-        <LogoWithFallback variant="full" height={34} />
+        <LogoWithFallback variant="full" height={34} darkMode={dark} />
         <div className="flex items-center gap-2">
+          {/* Dark mode toggle */}
+          <button
+            onClick={() => setDark(d => !d)}
+            aria-label={dark ? 'Chuyển sang sáng' : 'Chuyển sang tối'}
+            className="flex items-center justify-center rounded-xl transition-all hover:scale-[1.08] active:scale-[0.94]"
+            style={{
+              width: 34, height: 34,
+              background: dark ? 'rgba(77,163,255,0.15)' : 'rgba(26,111,255,0.10)',
+              border: '1px solid var(--border)',
+              color: 'var(--accent)',
+            }}>
+            {dark ? <Sun size={15} strokeWidth={2} /> : <Moon size={15} strokeWidth={1.8} />}
+          </button>
           <LangPicker lang={lang} onChangeLang={setLang} />
-          <ConnectKitButton />
+          {/* ConnectKit — dùng custom trigger để ẩn chữ "Connect Wallet" thô */}
+          <ConnectKitButton.Custom>
+            {({ isConnected, show, truncatedAddress, ensName }) => (
+              <button
+                onClick={show}
+                className="flex items-center gap-2 rounded-2xl transition-all hover:scale-[1.02] active:scale-[0.97]"
+                style={{
+                  padding: isConnected ? '6px 12px 6px 8px' : '7px 14px',
+                  background: isConnected ? 'var(--surface-muted)' : 'var(--accent)',
+                  border: isConnected ? '1px solid var(--border)' : 'none',
+                  color: isConnected ? 'var(--ink)' : 'white',
+                  fontSize: 13,
+                  fontWeight: 600,
+                }}>
+                {isConnected ? (
+                  <>
+                    {/* Avatar circle */}
+                    <div className="w-6 h-6 rounded-full flex items-center justify-center shrink-0"
+                      style={{ background: 'var(--accent)', color: 'white', fontSize: 10, fontWeight: 700 }}>
+                      {(ensName ?? truncatedAddress ?? '?').charAt(0).toUpperCase()}
+                    </div>
+                    <span className="mono text-[12px]">{ensName ?? truncatedAddress}</span>
+                  </>
+                ) : (
+                  <>
+                    <User size={14} />
+                    <span>Đăng nhập</span>
+                  </>
+                )}
+              </button>
+            )}
+          </ConnectKitButton.Custom>
         </div>
       </header>
 
       {/* ── Content ── */}
       <main className="relative z-10 max-w-md mx-auto px-4 pt-5 pb-28">
-        {activeTab === 'home'       && <HomeScreen lang={lang} onNavigate={setActiveTab} />}
+        {activeTab === 'home'       && <HomeScreen lang={lang} dark={dark} onNavigate={setActiveTab} />}
         {activeTab === 'payment'    && <PaymentScreen lang={lang} />}
         {activeTab === 'remittance' && <RemittanceScreen lang={lang} />}
         {activeTab === 'settings'   && <SettingsScreen lang={lang} onChangeLang={setLang} />}
@@ -294,9 +415,9 @@ export default function App() {
       {/* ── Bottom nav ── */}
       <nav className="fixed bottom-0 left-0 right-0 z-20"
         style={{
-          background: 'rgba(244,247,251,0.93)',
-          backdropFilter: 'blur(28px)',
-          WebkitBackdropFilter: 'blur(28px)',
+          background: 'var(--nav-bg)',
+          backdropFilter: 'blur(28px) saturate(160%)',
+          WebkitBackdropFilter: 'blur(28px) saturate(160%)',
           borderTop: '1px solid var(--border)',
         }}>
         {/* Safe-area spacer for mobile */}

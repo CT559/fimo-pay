@@ -2,89 +2,197 @@
 @tailwind components;
 @tailwind utilities;
 
-/* ── fimoPAY Design Tokens ──────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   fimoPAY Design Tokens — Light Mode (default)
+   Inspired by the brand wave background: azure-white gradient
+══════════════════════════════════════════════════════════════ */
 :root {
-  /* Canvas */
-  --bg: #f4f7fb;
-  --bg-gradient: linear-gradient(160deg, #eef4ff 0%, #f4f7fb 45%, #f0f6fe 100%);
+  /* ── Canvas — fimoPAY wave (replicates the azure-blue brand background) */
+  --bg: #deeeff;
+  --bg-gradient:
+    radial-gradient(ellipse 80% 60% at 10% 15%,  rgba(91,190,255,0.38) 0%, transparent 55%),
+    radial-gradient(ellipse 60% 50% at 90% 80%,  rgba(26,111,255,0.18) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 60% 40%,  rgba(255,255,255,0.70) 0%, transparent 60%),
+    radial-gradient(ellipse 70% 55% at 30% 80%,  rgba(168,200,255,0.35) 0%, transparent 55%),
+    linear-gradient(155deg, #c8e8ff 0%, #e8f4ff 35%, #f5faff 60%, #ddeeff 100%);
 
-  /* Surfaces — frosted glass on light */
-  --surface: rgba(255, 255, 255, 0.78);
-  --surface-strong: rgba(255, 255, 255, 0.94);
-  --surface-muted: rgba(241, 246, 255, 0.72);
+  /* ── Surfaces */
+  --surface:        rgba(255, 255, 255, 0.72);
+  --surface-strong: rgba(255, 255, 255, 0.90);
+  --surface-muted:  rgba(230, 243, 255, 0.80);
+  --header-bg:      rgba(225, 240, 255, 0.88);
+  --nav-bg:         rgba(225, 240, 255, 0.93);
 
-  /* Ink */
-  --ink:   #0f2340;
-  --ink-2: #1e3a5f;
-  --muted: #4d6484;
-  --subtle: #7a92aa;
+  /* ── Ink */
+  --ink:    #0b1e38;
+  --ink-2:  #1e3a5f;
+  --muted:  #3d5a7a;
+  --subtle: #6a8baa;
 
-  /* Borders */
-  --border: rgba(15, 35, 64, 0.09);
-  --border-strong: rgba(15, 35, 64, 0.22);
+  /* ── Borders */
+  --border:        rgba(26, 111, 255, 0.12);
+  --border-strong: rgba(26, 111, 255, 0.30);
 
-  /* Brand — fimoPAY blue, never harsh */
+  /* ── Brand blue — exact fimoPAY */
   --accent:       #1a6fff;
-  --accent-soft:  rgba(26, 111, 255, 0.10);
+  --accent-soft:  rgba(26, 111, 255, 0.12);
   --accent-hover: #1259e0;
   --accent-text:  #ffffff;
 
-  /* Semantic */
-  --success: #0f7a45;
+  /* ── Semantic */
+  --success:    #0f7a45;
   --success-bg: rgba(15, 122, 69, 0.10);
-  --danger:  #c0273a;
-  --danger-bg: rgba(192, 39, 58, 0.10);
-  --warning-bg: rgba(204, 140, 0, 0.10);
-  --warning-text: #8a5c00;
+  --danger:     #c0273a;
+  --danger-bg:  rgba(192, 39, 58, 0.10);
+  --warning-bg:   rgba(204, 140, 0, 0.10);
+  --warning-text: #7a4500;
 
-  /* Focus ring */
+  /* ── Focus */
   --focus: #7ab4ff;
 
-  /* Spectral strip (consumer only, 2-4px) */
-  --spectral: linear-gradient(90deg, #5fbeff, #4a8cf7, #7b6cf7, #b06af0, #f05c6b);
+  /* ── Spectral strip (consumer, 2-4px only) */
+  --spectral: linear-gradient(90deg, #5fbeff 0%, #4a8cf7 30%, #7b6cf7 60%, #b06af0 80%, #f05c6b 100%);
+
+  /* ── Wave decorative lines (semi-transparent) */
+  --wave-1: rgba(255, 255, 255, 0.55);
+  --wave-2: rgba(91, 190, 255, 0.30);
+  --wave-3: rgba(26, 111, 255, 0.12);
 }
 
-/* ── Reset & Base ───────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Dark Mode — Arc Dark adapted for fimoPAY
+══════════════════════════════════════════════════════════════ */
+.dark {
+  --bg: #07111e;
+  --bg-gradient:
+    radial-gradient(ellipse 70% 50% at 10% 10%,  rgba(26,111,255,0.22) 0%, transparent 55%),
+    radial-gradient(ellipse 50% 40% at 90% 85%,  rgba(91,190,255,0.12) 0%, transparent 55%),
+    linear-gradient(160deg, #0a1828 0%, #07111e 45%, #0d1f35 100%);
+
+  --surface:        rgba(255, 255, 255, 0.06);
+  --surface-strong: rgba(255, 255, 255, 0.10);
+  --surface-muted:  rgba(26, 111, 255, 0.10);
+  --header-bg:      rgba(7, 17, 30, 0.88);
+  --nav-bg:         rgba(7, 17, 30, 0.93);
+
+  --ink:    #e8f4ff;
+  --ink-2:  #c4dcf4;
+  --muted:  #8aadcc;
+  --subtle: #5a7fa0;
+
+  --border:        rgba(255, 255, 255, 0.10);
+  --border-strong: rgba(140, 190, 255, 0.35);
+
+  --accent:       #4da3ff;
+  --accent-soft:  rgba(77, 163, 255, 0.15);
+  --accent-hover: #6ab4ff;
+  --accent-text:  #07111e;
+
+  --success:    #5ecf8a;
+  --success-bg: rgba(94, 207, 138, 0.12);
+  --danger:     #ff6b7a;
+  --danger-bg:  rgba(255, 107, 122, 0.12);
+  --warning-bg:   rgba(255, 180, 50, 0.10);
+  --warning-text: #ffd080;
+
+  --focus: #4da3ff;
+
+  --wave-1: rgba(77, 163, 255, 0.18);
+  --wave-2: rgba(26, 111, 255, 0.12);
+  --wave-3: rgba(91, 190, 255, 0.08);
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Reset & Base
+══════════════════════════════════════════════════════════════ */
 *, *::before, *::after { box-sizing: border-box; }
 
-html { -webkit-tap-highlight-color: transparent; }
+html {
+  -webkit-tap-highlight-color: transparent;
+  transition: background-color 0.3s ease;
+}
 
 body {
   margin: 0;
   min-height: 100dvh;
   font-family: 'DM Sans', system-ui, sans-serif;
-  background: var(--bg-gradient);
+  background: var(--bg);
+  background-image: var(--bg-gradient);
+  background-attachment: fixed;
   color: var(--ink);
   -webkit-font-smoothing: antialiased;
+  transition: background-color 0.3s ease, color 0.3s ease;
 }
 
-/* ── Typography helpers ─────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Typography helpers
+══════════════════════════════════════════════════════════════ */
 .display {
   font-family: 'Space Grotesk', sans-serif;
   letter-spacing: -0.025em;
 }
 .mono {
   font-family: 'JetBrains Mono', 'Menlo', monospace;
+  font-variant-numeric: tabular-nums;
 }
 
-/* ── Glass surfaces ─────────────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Glass surfaces
+══════════════════════════════════════════════════════════════ */
 .glass-card {
   background: var(--surface);
-  backdrop-filter: blur(24px) saturate(180%);
-  -webkit-backdrop-filter: blur(24px) saturate(180%);
-  border: 1px solid rgba(255, 255, 255, 0.72);
-  box-shadow: 0 4px 24px rgba(15, 35, 64, 0.07), inset 0 1px 0 rgba(255,255,255,0.6);
+  backdrop-filter: blur(28px) saturate(160%);
+  -webkit-backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--border);
+  box-shadow:
+    0 2px 12px rgba(26, 111, 255, 0.06),
+    0 8px 32px rgba(0, 0, 0, 0.06),
+    inset 0 1px 0 rgba(255, 255, 255, 0.45);
+  transition: background 0.3s ease, border-color 0.3s ease, box-shadow 0.2s ease;
+}
+.dark .glass-card {
+  box-shadow:
+    0 2px 12px rgba(0, 0, 0, 0.30),
+    0 8px 32px rgba(0, 0, 0, 0.25),
+    inset 0 1px 0 rgba(255, 255, 255, 0.06);
 }
 .glass-inner {
-  background: rgba(255, 255, 255, 0.52);
-  border: 1px solid rgba(255, 255, 255, 0.60);
+  background: rgba(255, 255, 255, 0.45);
+  border: 1px solid rgba(255, 255, 255, 0.55);
+}
+.dark .glass-inner {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.10);
 }
 
-/* ── Sonner toast override (light) ──────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   Wave SVG decoration (animated, very subtle)
+══════════════════════════════════════════════════════════════ */
+.wave-bg {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+.wave-line {
+  position: absolute;
+  border-radius: 50%;
+  border: 1.5px solid var(--wave-1);
+  pointer-events: none;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Sonner toast overrides
+══════════════════════════════════════════════════════════════ */
 [data-sonner-toaster] [data-type="error"]   { background: #fff0f2 !important; color: var(--danger)  !important; }
 [data-sonner-toaster] [data-type="success"] { background: #f0fff6 !important; color: var(--success) !important; }
+.dark [data-sonner-toaster] [data-type="error"]   { background: #2a0a10 !important; }
+.dark [data-sonner-toaster] [data-type="success"] { background: #0a2018 !important; }
 
-/* ── QR scan line animation ─────────────────────────────────── */
+/* ══════════════════════════════════════════════════════════════
+   QR scan line animation
+══════════════════════════════════════════════════════════════ */
 @keyframes scan-line {
   0%   { transform: translateY(-48px); opacity: 0.9; }
   50%  { opacity: 1; }
@@ -92,4 +200,11 @@ body {
 }
 .animate-scan-line {
   animation: scan-line 1.6s ease-in-out infinite alternate;
+}
+
+/* ══════════════════════════════════════════════════════════════
+   Dark mode toggle transition
+══════════════════════════════════════════════════════════════ */
+.theme-transition * {
+  transition: background-color 0.25s ease, border-color 0.25s ease, color 0.2s ease !important;
 }

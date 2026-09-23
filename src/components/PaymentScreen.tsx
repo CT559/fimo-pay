@@ -1,14 +1,13 @@
 import { useState, useRef, useEffect, useCallback } from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useSwitchChain } from 'wagmi'
-import { erc20Abi } from 'viem'
+import { erc20Abi, encodeAbiParameters, parseAbiParameters, keccak256, encodeFunctionData } from 'viem'
 import { toast } from 'sonner'
 import { ChevronDown, ChevronUp, CheckCircle, Loader2, ExternalLink, QrCode, X, Camera } from 'lucide-react'
-import { getUsdc, buildTxExplorerUrl } from '@/onchain-facts'
-import { parseAmount, Amount, usdcDecimalsFor } from '@/onchain-money'
+import { buildTxExplorerUrl } from '@/onchain-facts'
+import { Amount } from '@/onchain-money'
 import type { LangCode } from '../i18n'
 import { t } from '../i18n'
-
-const CHAIN_ID = 5042002
+import { SETTLEMENT_ROUTER, ARC_USDC, CHAIN_ID } from '../contracts'
 
 // ── Realistic service icons ──────────────────────────────────────
 // EV Charging Station
@@ -251,52 +250,86 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
 
   const [selected, setSelected] = useState<ServiceKey>('ev')
   const [showBreakdown, setShowBreakdown] = useState(false)
-  const [step, setStep] = useState<'idle' | 'sent' | 'done'>('idle')
   const [showQR, setShowQR] = useState(false)
   const [merchantAddr, setMerchantAddr] = useState<`0x${string}`>(
     '0x1111111111111111111111111111111111111111'
   )
 
   const AMOUNT_USD = '2.50'
+  // MockUSDC has 6 decimals — $2.50 = 2_500_000
+  const AMOUNT_RAW = 2_500_000n
   const breakdown = [
     { label: t(lang, 'pay_service_fee'),    value: '$2.30' },
     { label: t(lang, 'pay_processing_fee'), value: '$0.20' },
   ]
 
-  const usdcFact = getUsdc(CHAIN_ID)
-  const usdcAddr = usdcFact?.address as `0x${string}` | undefined
+  // Payment step: 'idle' | 'approving' | 'settling' | 'done'
+  const [payStep, setPayStep] = useState<'idle' | 'approving' | 'settling' | 'done'>('idle')
 
   const { data: balRaw } = useReadContract({
-    address: usdcAddr,
+    address: ARC_USDC.address,
     abi: erc20Abi,
     functionName: 'balanceOf',
     args: address ? [address] : undefined,
     chainId: CHAIN_ID,
-    query: { enabled: !!address && !!usdcAddr },
+    query: { enabled: !!address },
   })
   const balFormatted = balRaw !== undefined
-    ? Amount.fromRaw(balRaw, usdcDecimalsFor(CHAIN_ID)).toFixed(2)
+    ? Amount.fromRaw(balRaw, ARC_USDC.decimals).toFixed(2)
     : '—'
 
-  const { writeContract, data: hash, isPending } = useWriteContract()
-  const { isLoading: isConfirming, isSuccess } = useWaitForTransactionReceipt({ hash })
-  const txUrl = hash ? buildTxExplorerUrl(CHAIN_ID, hash) : undefined
+  // Step 1 — approve
+  const { writeContract: approveWrite, data: approveTx, isPending: approvePending } = useWriteContract()
+  const { isLoading: approveConfirming } = useWaitForTransactionReceipt({ hash: approveTx })
 
-  if (isSuccess && step === 'sent') setStep('done')
+  // Step 2 — batchSettle
+  const { writeContract: settleWrite, data: settleTx, isPending: settlePending } = useWriteContract()
+  const { isLoading: settleConfirming } = useWaitForTransactionReceipt({ hash: settleTx })
+
+  const txUrl = settleTx ? buildTxExplorerUrl(CHAIN_ID, settleTx) : undefined
 
   const wrongChain = isConnected && chainId !== CHAIN_ID
+  const isPending = approvePending || settlePending
+  const isConfirming = approveConfirming || settleConfirming
+
+  // Step 2: gọi batchSettle sau khi approve xác nhận
+  const doSettle = useCallback((userAddr: `0x${string}`, merchant: `0x${string}`) => {
+    const sessionId = keccak256(encodeAbiParameters(
+      parseAbiParameters('address, uint256'),
+      [userAddr, BigInt(Date.now())]
+    ))
+    const deadline = BigInt(Math.floor(Date.now() / 1000) + 300)
+    void encodeFunctionData
+    toast.info('Bước 2/2: Ghi nhận onchain...')
+    settleWrite({
+      address: SETTLEMENT_ROUTER.address,
+      abi: SETTLEMENT_ROUTER.abi,
+      functionName: 'batchSettle',
+      args: [{ sessionId, user: userAddr, merchant, payToken: ARC_USDC.address,
+               totalUSD6: AMOUNT_RAW, isRemittance: false,
+               deadline }],
+      chainId: CHAIN_ID,
+    }, {
+      onSuccess: () => setPayStep('done'),
+      onError: (e) => { toast.error('Settle thất bại: ' + e.message.slice(0, 60)); setPayStep('idle') },
+    })
+  }, [settleWrite])
 
   const handlePay = () => {
-    if (!isConnected || !usdcAddr) { toast.error(t(lang, 'error_connect_wallet')); return }
+    if (!isConnected) { toast.error(t(lang, 'error_connect_wallet')); return }
     if (wrongChain) { switchChain({ chainId: CHAIN_ID }); return }
-    const parsed = parseAmount(CHAIN_ID, AMOUNT_USD)
-    setStep('sent')
-    writeContract({
-      address: usdcAddr,
+    if (!address) return
+    setPayStep('approving')
+    toast.info('Bước 1/2: Phê duyệt USDC...')
+    approveWrite({
+      address: ARC_USDC.address,
       abi: erc20Abi,
       functionName: 'approve',
-      args: [merchantAddr, parsed.raw],
+      args: [SETTLEMENT_ROUTER.address, AMOUNT_RAW],
       chainId: CHAIN_ID,
+    }, {
+      onSuccess: () => { setPayStep('settling'); doSettle(address, merchantAddr) },
+      onError: (e) => { toast.error('Approve thất bại: ' + e.message.slice(0, 60)); setPayStep('idle') },
     })
   }
 
@@ -316,8 +349,10 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
     ? t(lang, 'pay_btn_connect')
     : wrongChain
       ? t(lang, 'pay_btn_switch')
-      : isPending     ? t(lang, 'pay_btn_pending')
-      : isConfirming  ? t(lang, 'pay_btn_confirming')
+      : payStep === 'approving' && (approvePending || approveConfirming)
+        ? 'Đang phê duyệt USDC... (1/2)'
+      : payStep === 'settling' && (settlePending || settleConfirming)
+        ? 'Đang thanh toán... (2/2)'
       : `${t(lang, 'pay_btn_confirm')} $${AMOUNT_USD} USDC`
 
   const shortMerchant = `${merchantAddr.slice(0, 6)}···${merchantAddr.slice(-4)}`
@@ -436,7 +471,7 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
         </section>
 
         {/* ── CTA / Success ── */}
-        {step === 'done' ? (
+        {payStep === 'done' ? (
           <div className="flex flex-col items-center gap-3 py-5 glass-card rounded-3xl">
             <div className="w-14 h-14 rounded-full flex items-center justify-center"
               style={{ background: 'var(--success-bg)' }}>
@@ -444,6 +479,9 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
             </div>
             <p className="font-bold text-base" style={{ color: 'var(--ink)' }}>
               {t(lang, 'pay_success')}
+            </p>
+            <p className="text-xs" style={{ color: 'var(--muted)' }}>
+              batchSettle() đã ghi nhận onchain
             </p>
             {txUrl && (
               <a href={txUrl} target="_blank" rel="noopener noreferrer"
@@ -453,7 +491,7 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
               </a>
             )}
             <button
-              onClick={() => { setStep('idle'); setShowBreakdown(false) }}
+              onClick={() => { setPayStep('idle'); setShowBreakdown(false) }}
               className="mt-1 text-sm font-semibold px-5 py-2.5 rounded-xl transition-colors"
               style={{ background: 'var(--surface-muted)', color: 'var(--ink-2)', border: '1px solid var(--border)' }}>
               {t(lang, 'pay_new')}
@@ -461,8 +499,8 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
           </div>
         ) : (
           <button
-            onClick={() => { handlePay() }}
-            disabled={isPending || isConfirming}
+            onClick={handlePay}
+            disabled={isPending || isConfirming || payStep === 'approving' || payStep === 'settling'}
             className="w-full py-4 rounded-2xl text-sm font-bold transition-all
               hover:scale-[1.01] active:scale-[0.98] disabled:opacity-50 disabled:cursor-not-allowed
               flex items-center justify-center gap-2"

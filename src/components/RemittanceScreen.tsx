@@ -5,7 +5,7 @@ import { toast } from 'sonner'
 import { ChevronDown, CheckCircle, Loader2, AlertTriangle, ExternalLink } from 'lucide-react'
 import { TokenUSDC } from '@web3icons/react'
 import { getUsdc, buildTxExplorerUrl } from '@/onchain-facts'
-import { parseAmount, Amount, usdcDecimalsFor } from '@/onchain-money'
+import { parseAmount, Amount } from '@/onchain-money'
 import type { LangCode } from '../i18n'
 import { t } from '../i18n'
 
@@ -56,8 +56,9 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
     chainId: CHAIN_ID,
     query: { enabled: !!address && !!usdcAddr },
   })
+  const usdcDecimals = usdcFact?.decimals ?? 6
   const balFormatted = balRaw !== undefined
-    ? Amount.fromRaw(balRaw, usdcDecimalsFor(CHAIN_ID)).toFixed(2)
+    ? Amount.fromRaw(balRaw, usdcDecimals).toFixed(2)
     : '—'
 
   const { writeContract, data: hash, isPending } = useWriteContract()
@@ -103,7 +104,7 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
             ${amount} USDC → {shortAddr}
           </p>
           <p className="text-xs mt-0.5" style={{ color: 'var(--subtle)' }}>
-            {dest.flag} {dest.name} · nhận <strong>{dest.receiverToken}</strong>
+            {dest.flag} {dest.name} · → <strong>{dest.receiverToken}</strong>
           </p>
         </div>
         {txUrl && (
@@ -199,16 +200,16 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
             <path d="M2 12l10 5 10-5"/>
           </svg>
           <span className="text-[11px] font-bold uppercase" style={{ color: 'var(--accent)', letterSpacing: '0.08em' }}>
-            Bên gửi → Bên nhận
+            {t(lang, 'send_flow_header')}
           </span>
         </div>
         {/* Rows */}
-        {[
-          { from: '🇻🇳 VN · 🇹🇼 TW · 🇹🇭 TH', fromToken: 'USDC', to: '🇻🇳 VN · 🇹🇼 TW · 🇹🇭 TH', toToken: 'USDC' },
-          { from: '→ 🇯🇵 Nhật',  fromToken: 'USDC', to: 'Nhận',  toToken: 'JPYC' },
-          { from: '→ 🇰🇷 Hàn',   fromToken: 'USDC', to: 'Nhận',  toToken: 'KRW1' },
-          { from: '→ 🇵🇭 Philippines', fromToken: 'USDC', to: 'Nhận', toToken: 'PHPC' },
-        ].map((row, i) => (
+        {([
+          { from: t(lang, 'send_flow_same'), fromToken: 'USDC', toToken: 'USDC' },
+          { from: t(lang, 'send_flow_jp'),   fromToken: 'USDC', toToken: 'JPYC' },
+          { from: t(lang, 'send_flow_kr'),   fromToken: 'USDC', toToken: 'KRW1' },
+          { from: t(lang, 'send_flow_ph'),   fromToken: 'USDC', toToken: 'PHPC' },
+        ] as { from: string; fromToken: string; toToken: string }[]).map((row, i) => (
           <div key={i} className="flex items-center px-4 py-2.5 gap-2 text-xs"
             style={{ borderBottom: i < 3 ? '1px solid var(--border)' : 'none' }}>
             <span style={{ color: 'var(--muted)', flex: 1 }}>{row.from}</span>
@@ -230,7 +231,7 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
             </span>
           </div>
         ))}
-        {/* Ngân hàng note */}
+        {/* Bank note */}
         <div className="px-4 py-3 flex items-start gap-2.5"
           style={{ background: 'rgba(15,122,69,0.06)', borderTop: '1px solid var(--border)' }}>
           <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--success)"
@@ -239,9 +240,7 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
             <polyline points="9 22 9 12 15 12 15 22"/>
           </svg>
           <p className="text-[11px] leading-relaxed" style={{ color: 'var(--success)' }}>
-            <strong>Liên kết ngân hàng (sắp ra mắt):</strong> Sau khi nhận token về ví,
-            người nhận có thể rút về tài khoản ngân hàng nội địa qua Circle Payouts —
-            tự động đổi sang VND / JPY / KRW / PHP theo tỷ giá thời điểm rút.
+            <strong>{t(lang, 'send_bank_title')}:</strong> {t(lang, 'send_bank_note')}
           </p>
         </div>
       </div>
@@ -296,34 +295,41 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
             <circle cx="12" cy="12" r="10"/><path d="M12 16v-4M12 8h.01"/>
           </svg>
           <p className="text-xs leading-relaxed" style={{ color: 'var(--accent)' }}>
-            Bạn gửi <strong>USDC</strong> — người nhận tại {dest.flag} {dest.name} sẽ nhận{' '}
-            <strong>{dest.receiverToken}</strong> sau khi agent Waterfall Settlement tự động convert.
+            {t(lang, 'send_waterfall_note')
+              .replace('{flag}', dest.flag)
+              .replace('{name}', dest.name)
+              .replace('{token}', dest.receiverToken)}
           </p>
         </div>
       )}
 
       {/* ── Amount input ── */}
       <div>
-        <p className="text-xs font-semibold mb-1.5" style={{ color: 'var(--muted)' }}>
-          {t(lang, 'send_amount')}
-        </p>
         <div className="glass-inner rounded-2xl p-4">
-          <div className="flex items-center gap-3">
-            <TokenUSDC size={26} variant="branded" />
-            <input
-              inputMode="decimal"
-              type="text"
-              value={amount}
-              onChange={e => {
-                const v = e.target.value.replace(/[^0-9.]/g, '')
-                if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v)
-              }}
-              placeholder="0.00"
-              className="flex-1 bg-transparent display text-4xl font-bold tabular-nums outline-none"
-              style={{ color: 'var(--ink)', caretColor: 'var(--accent)' }}
-            />
-            <span className="text-sm font-medium" style={{ color: 'var(--subtle)' }}>USDC</span>
+          {/* USDC badge — góc trên phải */}
+          <div className="flex items-center justify-between mb-2">
+            <span className="text-[11px] font-semibold uppercase tracking-wider"
+              style={{ color: 'var(--subtle)' }}>
+              {t(lang, 'send_amount')}
+            </span>
+            <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-lg"
+              style={{ background: 'var(--accent-soft)', border: '1px solid rgba(26,111,255,0.18)' }}>
+              <TokenUSDC size={14} variant="branded" />
+              <span className="mono text-[11px] font-bold" style={{ color: 'var(--accent)' }}>USDC</span>
+            </div>
           </div>
+          <input
+            inputMode="decimal"
+            type="text"
+            value={amount}
+            onChange={e => {
+              const v = e.target.value.replace(/[^0-9.]/g, '')
+              if (v === '' || /^\d*\.?\d*$/.test(v)) setAmount(v)
+            }}
+            placeholder="0.00"
+            className="w-full bg-transparent display text-4xl font-bold tabular-nums outline-none"
+            style={{ color: amount ? 'var(--ink)' : 'var(--border-strong)', caretColor: 'var(--accent)' }}
+          />
           <div className="flex items-center justify-between mt-2.5">
             <span className="text-xs" style={{ color: 'var(--subtle)' }}>
               {t(lang, 'send_balance')}: <span className="tabular-nums font-semibold" style={{ color: 'var(--ink-2)' }}>{balFormatted}</span>

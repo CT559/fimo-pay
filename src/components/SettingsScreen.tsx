@@ -11,17 +11,25 @@ import { t, LANGUAGES } from '../i18n'
 
 const CHAIN_ID = 5042002
 
-// ── Token addresses on Arc Testnet (mock addresses — replace when mainnet) ──
-// USDC: from onchain-facts registry
-// BTC, ETH, cirBTC, ARC: placeholder ERC-20 addresses for testnet display
-// Chỉ hiện token đã có contract thật trên Arc Testnet
-// ARC, ETH, BTC, cirBTC ẩn cho đến khi có địa chỉ contract chính thức
+// ── Tokens LIVE trên Arc Testnet — địa chỉ thật từ docs.arc.io ──────────────
+// Nguồn: https://docs.arc.io/arc/references/contract-addresses (Sep 2026)
 const TOKEN_LIST = [
-  { symbol: 'USDC', decimals: 6, color: '#2775CA', address: null as string | null },
+  { symbol: 'USDC', decimals: 6, color: '#2775CA',
+    address: '0x3600000000000000000000000000000000000000' as string },
+  { symbol: 'EURC', decimals: 6, color: '#4B92F5',
+    address: '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a' as string },
 ]
 
-// Tokens sắp ra mắt — hiện dạng placeholder không fetch onchain
-const COMING_SOON = ['ARC', 'ETH', 'BTC', 'cirBTC']
+// Partner Stablecoins — announced for Arc, chưa deploy (builtonarc.app Sep 2026)
+// Badge hiện "Chờ issuer" thay vì "sắp ra mắt" để đúng với thực tế
+const PARTNER_TOKENS = [
+  { symbol: 'JPYC', issuer: 'JPYC Inc.', flag: '🇯🇵' },
+  { symbol: 'KRW1', issuer: 'BDACS',     flag: '🇰🇷' },
+  { symbol: 'PHPC', issuer: 'Coins.PH',  flag: '🇵🇭' },
+]
+
+// Tokens khác sẽ thêm sau
+const COMING_SOON = ['ARC', 'BTC', 'cirBTC']
 
 const TIERS = [
   { level: 0, labelKey: 'settings_tier_none'      as const, color: 'var(--subtle)' },
@@ -35,6 +43,42 @@ function TokenIcon({ symbol, size = 20 }: { symbol: string; size?: number }) {
   if (symbol === 'USDC')   return <TokenUSDC size={size} variant="branded" />
   if (symbol === 'ETH')    return <TokenETH  size={size} variant="branded" />
   if (symbol === 'BTC' || symbol === 'cirBTC') return <TokenBTC size={size} variant="branded" />
+  // EURC — euro blue circle
+  if (symbol === 'EURC') return (
+    <span style={{
+      width: size, height: size, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#4B92F5,#1a6fff)',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.42, fontWeight: 700, color: 'white', flexShrink: 0,
+    }}>€</span>
+  )
+  // JPYC
+  if (symbol === 'JPYC') return (
+    <span style={{
+      width: size, height: size, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#e63946,#c1121f)',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.38, fontWeight: 700, color: 'white', flexShrink: 0,
+    }}>¥</span>
+  )
+  // KRW1
+  if (symbol === 'KRW1') return (
+    <span style={{
+      width: size, height: size, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#457b9d,#1d3557)',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.34, fontWeight: 700, color: 'white', flexShrink: 0,
+    }}>₩</span>
+  )
+  // PHPC
+  if (symbol === 'PHPC') return (
+    <span style={{
+      width: size, height: size, borderRadius: '50%',
+      background: 'linear-gradient(135deg,#2a9d8f,#264653)',
+      display: 'inline-flex', alignItems: 'center', justifyContent: 'center',
+      fontSize: size * 0.34, fontWeight: 700, color: 'white', flexShrink: 0,
+    }}>₱</span>
+  )
   // ARC — branded circle
   return (
     <span style={{
@@ -293,14 +337,32 @@ export default function SettingsScreen({ lang, onChangeLang }: SettingsScreenPro
           ))}
         </div>
 
-        {/* Coming soon tokens — hiện placeholder, không fetch onchain */}
+        {/* Circle Partner Stablecoins — announced, chờ issuer deploy lên Arc */}
         <div className="mt-1">
+          {PARTNER_TOKENS.map((tok, i) => (
+            <div key={tok.symbol} className="flex items-center gap-3 py-2.5"
+              style={{ borderBottom: i < PARTNER_TOKENS.length - 1 ? '1px solid var(--border)' : 'none', opacity: 0.55 }}>
+              <TokenIcon symbol={tok.symbol} size={26} />
+              <div className="flex-1 min-w-0">
+                <p className="text-sm font-semibold" style={{ color: 'var(--ink-2)' }}>{tok.symbol}</p>
+                <p className="text-[10px]" style={{ color: 'var(--subtle)' }}>{tok.flag} {tok.issuer}</p>
+              </div>
+              <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
+                style={{ background: 'rgba(251,191,36,0.12)', color: '#d97706', border: '1px solid rgba(217,119,6,0.2)' }}>
+                Chờ issuer
+              </span>
+            </div>
+          ))}
+        </div>
+
+        {/* Tokens khác sắp ra mắt */}
+        <div className="mt-0.5">
           {COMING_SOON.map((sym, i) => (
             <div key={sym} className="flex items-center gap-3 py-2"
-              style={{ borderBottom: i < COMING_SOON.length - 1 ? '1px solid var(--border)' : 'none', opacity: 0.38 }}>
-              <TokenIcon symbol={sym} size={24} />
-              <span className="text-sm flex-1" style={{ color: 'var(--muted)' }}>{sym}</span>
-              <span className="text-[10px] px-2 py-0.5 rounded-full font-medium"
+              style={{ borderBottom: i < COMING_SOON.length - 1 ? '1px solid var(--border)' : 'none', opacity: 0.32 }}>
+              <TokenIcon symbol={sym} size={22} />
+              <span className="text-xs flex-1" style={{ color: 'var(--muted)' }}>{sym}</span>
+              <span className="text-[10px] px-1.5 py-0.5 rounded-full"
                 style={{ background: 'var(--surface-muted)', color: 'var(--subtle)', border: '1px solid var(--border)' }}>
                 sắp ra mắt
               </span>

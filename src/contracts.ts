@@ -1,56 +1,69 @@
-// fimoPAY — Deployed contract addresses on Arc Testnet
-// Deployed: 2026-09-21 via Arc Studio deploy_contract (Mode 1)
-// All contracts: Arc Testnet (Chain ID 5042002)
-// Explorer: https://explorer.testnet.arc.io
+// fimoPAY — Deployed contracts on Arc Testnet (Chain ID 5042002)
+// USDC: dùng contract USDC thật của Arc Testnet tại 0x3600000000000000000000000000000000000000
+// (có sẵn trong sandbox Arc Studio, không cần mock)
 
-import issuerRegistryArtifact    from '../contracts/out/IssuerRegistry.sol/IssuerRegistry.json'
-import complianceArtifact        from '../contracts/out/ComplianceGateway.sol/ComplianceGateway.json'
-import sessionEscrowArtifact     from '../contracts/out/SessionEscrow.sol/SessionEscrow.json'
-import usageAttestationArtifact  from '../contracts/out/UsageAttestation.sol/UsageAttestation.json'
-import deviceRegistryArtifact    from '../contracts/out/DeviceRegistry.sol/DeviceRegistry.json'
-import settlementRouterArtifact  from '../contracts/out/SettlementRouterV1.sol/SettlementRouterV1.json'
-import mockUsdcArtifact          from '../contracts/out/MockStablecoin.sol/MockStablecoin.json'
+import issuerRegistryArtifact   from '../contracts/out/IssuerRegistry.sol/IssuerRegistry.json'
+import settlementRouterArtifact from '../contracts/out/SettlementRouterV1.sol/SettlementRouterV1.json'
+import sessionEscrowArtifact    from '../contracts/out/SessionEscrow.sol/SessionEscrow.json'
+import { erc20Abi }             from 'viem'
 
 export const CHAIN_ID = 5042002
 
-// ── Deployed addresses ─────────────────────────────────────────────────────
-export const CONTRACTS = {
-  IssuerRegistry: {
-    address: '0x211e8a18cfa0bdd7d3be6c09838b5e9930b9b985' as `0x${string}`,
-    abi: issuerRegistryArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0x211e8a18cfa0bdd7d3be6c09838b5e9930b9b985',
-  },
-  ComplianceGateway: {
-    address: '0xe72a17930539045989e5a0c10736b47ce1bb0e5d' as `0x${string}`,
-    abi: complianceArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0xe72a17930539045989e5a0c10736b47ce1bb0e5d',
-  },
-  SessionEscrow: {
-    address: '0x8b209ee7061481be3605a7c988fda70cf0548663' as `0x${string}`,
-    abi: sessionEscrowArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0x8b209ee7061481be3605a7c988fda70cf0548663',
-  },
-  UsageAttestation: {
-    address: '0xdfeb8e0b0ad692d7698b84da8a0eb6e8703d3a3e' as `0x${string}`,
-    abi: usageAttestationArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0xdfeb8e0b0ad692d7698b84da8a0eb6e8703d3a3e',
-  },
-  DeviceRegistry: {
-    address: '0x1f1c901536c81a5871a27bb381be0d34487ee5f4' as `0x${string}`,
-    abi: deviceRegistryArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0x1f1c901536c81a5871a27bb381be0d34487ee5f4',
-  },
-  SettlementRouterV1: {
-    address: '0xcc8c78eb2f33b71c11a7ee0d05b3eeb53b1bcb0a' as `0x${string}`,
-    abi: settlementRouterArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0xcc8c78eb2f33b71c11a7ee0d05b3eeb53b1bcb0a',
-  },
-  // Mock USDC testnet — for testing payments before real USDC integration
-  MockUSDC: {
-    address: '0xd1f2ab829a2fd0e024ad18f9f8eaef1facdefc7c' as `0x${string}`,
-    abi: mockUsdcArtifact.abi,
-    explorer: 'https://explorer.testnet.arc.io/address/0xd1f2ab829a2fd0e024ad18f9f8eaef1facdefc7c',
-    decimals: 6,
-    symbol: 'mUSDC',
-  },
-} as const
+// ── Tokens thật trên Arc Testnet ─────────────────────────────────────────────
+// Nguồn: https://docs.arc.io/arc/references/contract-addresses (September 2026)
+
+export const ARC_USDC = {
+  address: '0x3600000000000000000000000000000000000000' as `0x${string}`,
+  abi: erc20Abi,
+  decimals: 6,
+  symbol: 'USDC',
+  live: true,
+}
+
+// EURC — Euro stablecoin của Circle, LIVE trên Arc Testnet
+export const ARC_EURC = {
+  address: '0x89B50855Aa3bE2F677cD6303Cec089B5F319D72a' as `0x${string}`,
+  abi: erc20Abi,
+  decimals: 6,
+  symbol: 'EURC',
+  live: true,
+}
+
+// JPYC, KRW1, PHPC — Announced for Arc, chưa có địa chỉ contract (Sep 2026)
+// Khi issuer deploy lên Arc, thay địa chỉ ở đây và đổi live: true
+// Nguồn: https://builtonarc.app — "Announced, nothing observed on chain"
+export const ARC_JPYC  = { address: null, symbol: 'JPYC',  decimals: 18, live: false, issuer: 'JPYC Inc.' }
+export const ARC_KRW1  = { address: null, symbol: 'KRW1',  decimals: 0,  live: false, issuer: 'BDACS' }
+export const ARC_PHPC  = { address: null, symbol: 'PHPC',  decimals: 6,  live: false, issuer: 'Coins.PH' }
+
+// Bảng token nhận theo quốc gia đích trong luồng kiều hối
+export const RECEIVER_TOKEN: Record<string, typeof ARC_USDC | typeof ARC_EURC | typeof ARC_JPYC> = {
+  VN: ARC_USDC,  // Việt Nam — USDC (chưa có issuer nội địa)
+  TH: ARC_USDC,  // Thái Lan — USDC
+  TW: ARC_USDC,  // Đài Loan — USDC
+  JP: ARC_JPYC,  // Nhật Bản — JPYC (sẽ dùng khi live)
+  KR: ARC_KRW1,  // Hàn Quốc — KRW1 (sẽ dùng khi live)
+  PH: ARC_PHPC,  // Philippines — PHPC (sẽ dùng khi live)
+}
+
+// ── Core contracts ────────────────────────────────────────────────────────────
+export const SETTLEMENT_ROUTER = {
+  // FimoProxy (ERC1967) wrapping SettlementRouterV1 — initialized, ready
+  address: '0xd70b8c9a1b61f1c9ebb79803ae6a610add0be34a' as `0x${string}`,
+  abi: settlementRouterArtifact.abi,
+}
+
+export const ISSUER_REGISTRY = {
+  address: '0x211e8a18cfa0bdd7d3be6c09838b5e9930b9b985' as `0x${string}`,
+  abi: issuerRegistryArtifact.abi,
+}
+
+export const SESSION_ESCROW = {
+  address: '0x8b209ee7061481be3605a7c988fda70cf0548663' as `0x${string}`,
+  abi: sessionEscrowArtifact.abi,
+}
+
+// ── Explorer ─────────────────────────────────────────────────────────────────
+export const EXPLORER = 'https://explorer.testnet.arc.io'
+export const buildTxUrl  = (hash: string)  => `${EXPLORER}/tx/${hash}`
+export const buildAddrUrl = (addr: string) => `${EXPLORER}/address/${addr}`
