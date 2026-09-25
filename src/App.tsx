@@ -1,17 +1,24 @@
 import { useState, useEffect } from 'react'
 import { ConnectKitButton } from 'connectkit'
 import { useAccount } from 'wagmi'
-import { Home, Zap, Send, Settings, Wifi, User, Sun, Moon } from 'lucide-react'
+import { Home, Zap, Send, Settings, Wifi, User, Sun, Moon, ArrowDownToLine, BatteryCharging } from 'lucide-react'
 import { TokenUSDC } from '@web3icons/react'
 import { LogoWithFallback } from './components/FimoLogo'
 import PaymentScreen from './components/PaymentScreen'
 import RemittanceScreen from './components/RemittanceScreen'
 import SettingsScreen from './components/SettingsScreen'
+import BridgeScreen from './components/BridgeScreen'
+import GatewayScreen from './components/GatewayScreen'
+import ParkingScreen from './components/ParkingScreen'
+import VendingScreen from './components/VendingScreen'
+import CheckoutScreen from './components/CheckoutScreen'
+import EVChargerLive from './components/EVChargerLive'
+import FaucetButton from './components/FaucetButton'
 import LangPicker from './components/LangPicker'
 import type { LangCode } from './i18n'
 import { t } from './i18n'
 
-type Tab = 'home' | 'payment' | 'remittance' | 'settings'
+type Tab = 'home' | 'payment' | 'ev' | 'parking' | 'vending' | 'checkout' | 'remittance' | 'bridge' | 'gateway' | 'settings'
 
 /* ── Wave background — tái tạo nền fimoPAY brand ──────────────── */
 function WaveBg({ dark }: { dark: boolean }) {
@@ -226,7 +233,7 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
           const Icon = SERVICE_ICONS[idx]
           return (
             <button key={key}
-              onClick={() => onNavigate('payment')}
+              onClick={() => onNavigate(key)}
               className="glass-card rounded-2xl p-4 flex flex-col gap-3 text-left
                 transition-all hover:scale-[1.02] active:scale-[0.97]">
               <div className="w-9 h-9 rounded-xl flex items-center justify-center"
@@ -311,6 +318,9 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
           </svg>
         </div>
       )}
+
+      {/* ── Faucet — tự động hiện khi balance thấp ── */}
+      <FaucetButton lang={lang} />
     </div>
   )
 }
@@ -333,11 +343,13 @@ export default function App() {
     }
   }, [dark])
 
-  const NAV_ITEMS: { id: Tab; labelKey: 'nav_home' | 'nav_pay' | 'nav_send' | 'nav_settings'; icon: typeof Home }[] = [
-    { id: 'home',       labelKey: 'nav_home',     icon: Home },
-    { id: 'payment',    labelKey: 'nav_pay',      icon: Zap },
-    { id: 'remittance', labelKey: 'nav_send',     icon: Send },
-    { id: 'settings',   labelKey: 'nav_settings', icon: Settings },
+  const NAV_ITEMS: { id: Tab; label: string; icon: typeof Home }[] = [
+    { id: 'home',       label: t(lang, 'nav_home'),     icon: Home },
+    { id: 'payment',    label: t(lang, 'nav_pay'),      icon: Zap },
+    { id: 'ev',         label: t(lang, 'nav_ev'),       icon: BatteryCharging },
+    { id: 'remittance', label: t(lang, 'nav_send'),     icon: Send },
+    { id: 'bridge',     label: t(lang, 'nav_bridge'),   icon: ArrowDownToLine },
+    { id: 'settings',   label: t(lang, 'nav_settings'), icon: Settings },
   ]
 
   return (
@@ -408,8 +420,14 @@ export default function App() {
       <main className="relative z-10 max-w-md mx-auto px-4 pt-5 pb-28">
         {activeTab === 'home'       && <HomeScreen lang={lang} dark={dark} onNavigate={setActiveTab} />}
         {activeTab === 'payment'    && <PaymentScreen lang={lang} />}
+        {activeTab === 'ev'         && <EVChargerLive lang={lang} />}
+        {activeTab === 'parking'    && <ParkingScreen lang={lang} />}
+        {activeTab === 'vending'    && <VendingScreen lang={lang} />}
+        {activeTab === 'checkout'   && <CheckoutScreen lang={lang} />}
         {activeTab === 'remittance' && <RemittanceScreen lang={lang} />}
-        {activeTab === 'settings'   && <SettingsScreen lang={lang} onChangeLang={setLang} />}
+        {activeTab === 'bridge'     && <BridgeScreen lang={lang} />}
+        {activeTab === 'gateway'    && <GatewayScreen _lang={lang} />}
+        {activeTab === 'settings'   && <SettingsScreen lang={lang} onChangeLang={setLang} onNavigate={tab => setActiveTab(tab as Tab)} />}
       </main>
 
       {/* ── Bottom nav ── */}
@@ -421,36 +439,36 @@ export default function App() {
           borderTop: '1px solid var(--border)',
         }}>
         {/* Safe-area spacer for mobile */}
-        <div className="flex justify-around items-stretch px-1 pt-1.5 pb-2"
+        <div className="flex justify-around items-stretch px-0.5 pt-1.5 pb-2"
           style={{ paddingBottom: 'max(env(safe-area-inset-bottom, 0px), 8px)' }}>
-          {NAV_ITEMS.map(({ id, labelKey, icon: Icon }) => {
+          {NAV_ITEMS.map(({ id, label, icon: Icon }) => {
             const active = activeTab === id
             return (
               <button
                 key={id}
                 onClick={() => setActiveTab(id)}
-                className="flex flex-col items-center gap-[5px] transition-all duration-150"
-                style={{ minWidth: 56, padding: '6px 12px 4px' }}>
-                {/* Pill indicator */}
+                className="flex flex-col items-center gap-[4px] transition-all duration-150"
+                style={{ minWidth: 44, padding: '5px 8px 4px' }}>
                 <div className="flex items-center justify-center rounded-xl transition-all duration-150"
                   style={{
-                    width: 40, height: 28,
+                    width: 36, height: 26,
                     background: active ? 'var(--accent-soft)' : 'transparent',
                   }}>
                   <Icon
-                    size={18}
+                    size={16}
                     strokeWidth={active ? 2.4 : 1.7}
                     style={{ color: active ? 'var(--accent)' : 'var(--subtle)' }}
                   />
                 </div>
                 <span style={{
-                  fontSize: 10,
+                  fontSize: 9,
                   fontWeight: active ? 700 : 500,
                   color: active ? 'var(--accent)' : 'var(--subtle)',
                   lineHeight: 1,
                   letterSpacing: active ? '-0.01em' : '0',
+                  whiteSpace: 'nowrap',
                 }}>
-                  {t(lang, labelKey)}
+                  {label}
                 </span>
               </button>
             )

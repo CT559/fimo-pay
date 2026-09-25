@@ -41,6 +41,28 @@ export type I18nKey =
   | 'settings_limit_warning' | 'settings_limit_placeholder' | 'settings_limit_save'
   | 'settings_security_title' | 'settings_security_body'
   | 'settings_lang_title'
+  | 'nav_ev' | 'nav_bridge' | 'nav_gateway'
+  | 'ev_title' | 'ev_subtitle' | 'ev_start' | 'ev_stop' | 'ev_connecting' | 'ev_charging'
+  | 'ev_confirming' | 'ev_success' | 'ev_receipt' | 'ev_kwh' | 'ev_amount' | 'ev_fee'
+  | 'ev_view_receipt' | 'ev_new_session' | 'ev_demo_mode' | 'ev_device_id' | 'ev_power'
+  | 'ev_duration' | 'ev_error'
+  | 'ev_charger_name' | 'ev_charger_desc' | 'ev_charge_type_label' | 'ev_charge_type_val'
+  | 'ev_price_label' | 'ev_fee_label' | 'ev_fee_fixed'
+  | 'ev_toast_start' | 'ev_toast_done'
+  | 'bridge_title' | 'bridge_subtitle' | 'bridge_fee_note' | 'bridge_source' | 'bridge_dest'
+  | 'bridge_amount' | 'bridge_btn' | 'bridge_success' | 'bridge_view_tx' | 'bridge_new'
+  | 'bridge_gateway_teaser'
+  | 'bridge_step_approve' | 'bridge_step_send' | 'bridge_step_confirm' | 'bridge_step_receive'
+  | 'bridge_transferring' | 'bridge_progress'
+  | 'bridge_gas_note'
+  | 'pay_qr_scan' | 'pay_demo_hint' | 'pay_merchant_scanned'
+  | 'faucet_cta'
+  | 'stable_fee_badge'
+  | 'settings_token_pending' | 'settings_token_soon' | 'settings_copy' | 'settings_copied'
+  | 'settings_saved' | 'settings_per_day'
+  | 'gateway_title' | 'gateway_subtitle' | 'gateway_deposit' | 'gateway_balance'
+  | 'gateway_coming_soon' | 'gateway_coming_desc'
+  | 'faucet_title' | 'faucet_desc' | 'faucet_btn' | 'faucet_balance'
   | 'error_connect_wallet' | 'error_wrong_chain' | 'error_invalid_amount' | 'error_invalid_address'
   | 'error_deploy_needed'
 
@@ -92,6 +114,38 @@ const vi: Translations = {
   error_connect_wallet: 'Vui lòng đăng nhập trước', error_wrong_chain: 'Vui lòng đổi mạng để tiếp tục',
   error_invalid_amount: 'Số tiền không hợp lệ', error_invalid_address: 'Số tài khoản không hợp lệ',
   error_deploy_needed: 'Tính năng đang trong giai đoạn thử nghiệm',
+  nav_ev: 'Sạc EV', nav_bridge: 'Nạp tiền', nav_gateway: 'Ví đa chuỗi',
+  ev_title: 'Trạm sạc EV', ev_subtitle: 'Tự động đo · Tự động tính tiền · Bấm 1 nút xác nhận',
+  ev_start: 'Bắt đầu sạc', ev_stop: 'Dừng sạc',
+  ev_connecting: 'Đang kết nối thiết bị...', ev_charging: 'Đang sạc',
+  ev_confirming: 'Đang xử lý thanh toán...', ev_success: 'Thanh toán thành công',
+  ev_receipt: 'Biên lai', ev_kwh: 'Điện tiêu thụ', ev_amount: 'Thành tiền', ev_fee: 'Phí giao dịch',
+  ev_view_receipt: 'Xem biên lai', ev_new_session: 'Phiên sạc mới',
+  ev_demo_mode: 'Demo Mode', ev_device_id: 'Thiết bị', ev_power: 'Công suất',
+  ev_duration: 'Thời gian', ev_error: 'Có lỗi xảy ra',
+  ev_charger_name: 'Trạm EV #001', ev_charger_desc: 'Demo · $0.20/kWh · Tầng B1',
+  ev_charge_type_label: 'Loại sạc', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: 'Giá', ev_fee_label: 'Phí giao dịch', ev_fee_fixed: '~$0.001 · Cố định',
+  ev_toast_start: 'Phiên sạc bắt đầu · Demo Mode', ev_toast_done: 'Thanh toán thành công · Demo Mode',
+  bridge_step_approve: 'Duyệt USDC', bridge_step_send: 'Gửi từ nguồn', bridge_step_confirm: 'Xác nhận Circle', bridge_step_receive: 'Nhận trên Arc',
+  bridge_transferring: 'Đang chuyển...', bridge_progress: 'TIẾN TRÌNH',
+  bridge_gas_note: 'Lưu ý: Ethereum Sepolia và Arbitrum Sepolia dùng ETH làm phí mạng. Chỉ trên Arc mới dùng USDC làm phí.',
+  pay_qr_scan: 'Quét QR', pay_demo_hint: 'Demo · Quét QR để đổi điểm thanh toán', pay_merchant_scanned: 'Điểm thanh toán đã quét',
+  faucet_cta: 'Nhận ngay →',
+  stable_fee_badge: 'Phí cố định ~$0.001 · Không dao động · Arc EWMA',
+  settings_token_pending: 'Chờ issuer', settings_token_soon: 'Sắp ra mắt',
+  settings_copy: 'Copy', settings_copied: 'Đã copy', settings_saved: 'Đã lưu.', settings_per_day: '/ ngày',
+  bridge_title: 'Nạp USDC vào tài khoản', bridge_subtitle: 'Chuyển từ chain khác · CCTP · ~8–20 giây',
+  bridge_fee_note: 'Phí bridge: ~$0.001 trên Arc · Không có phí ẩn. CCTP permissionless — không cần đăng ký.',
+  bridge_source: 'Nguồn', bridge_dest: 'Đến', bridge_amount: 'Số lượng USDC',
+  bridge_btn: 'Chuyển {amount} USDC → Arc', bridge_success: 'Nạp tiền thành công',
+  bridge_view_tx: 'Xem giao dịch', bridge_new: 'Nạp tiếp',
+  bridge_gateway_teaser: 'Số dư hợp nhất từ nhiều chain <500ms — không cần bridge thủ công',
+  gateway_title: 'Ví đa chuỗi', gateway_subtitle: 'Số dư hợp nhất · Không cần bridge thủ công',
+  gateway_deposit: 'Nạp vào Ví đa chuỗi', gateway_balance: 'Số dư khả dụng',
+  gateway_coming_soon: 'Sắp ra mắt', gateway_coming_desc: 'Ví đa chuỗi sẽ được tích hợp sau khi ra mainnet.',
+  faucet_title: 'Nhận USDC miễn phí', faucet_desc: 'Faucet testnet để thử nghiệm',
+  faucet_btn: 'Nhận ngay', faucet_balance: 'Số dư hiện tại',
 }
 
 const en: Translations = {
@@ -140,6 +194,38 @@ const en: Translations = {
   error_connect_wallet: 'Please sign in first', error_wrong_chain: 'Please switch network to continue',
   error_invalid_amount: 'Invalid amount', error_invalid_address: 'Invalid account number',
   error_deploy_needed: 'This feature is in testing',
+  nav_ev: 'EV Charge', nav_bridge: 'Add Funds', nav_gateway: 'Multi-chain',
+  ev_title: 'EV Charging Station', ev_subtitle: 'Auto measure · Auto bill · One tap to confirm',
+  ev_start: 'Start Charging', ev_stop: 'Stop Charging',
+  ev_connecting: 'Connecting to device...', ev_charging: 'Charging',
+  ev_confirming: 'Processing payment...', ev_success: 'Payment Successful',
+  ev_receipt: 'Receipt', ev_kwh: 'Energy used', ev_amount: 'Amount', ev_fee: 'Transaction fee',
+  ev_view_receipt: 'View receipt', ev_new_session: 'New session',
+  ev_demo_mode: 'Demo Mode', ev_device_id: 'Device', ev_power: 'Power',
+  ev_duration: 'Duration', ev_error: 'An error occurred',
+  ev_charger_name: 'EV Station #001', ev_charger_desc: 'Demo · $0.20/kWh · Floor B1',
+  ev_charge_type_label: 'Charge type', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: 'Price', ev_fee_label: 'Transaction fee', ev_fee_fixed: '~$0.001 · Fixed',
+  ev_toast_start: 'Charging session started · Demo Mode', ev_toast_done: 'Payment successful · Demo Mode',
+  bridge_step_approve: 'Approve USDC', bridge_step_send: 'Send from source', bridge_step_confirm: 'Confirm Circle', bridge_step_receive: 'Receive on Arc',
+  bridge_transferring: 'Transferring...', bridge_progress: 'PROGRESS',
+  bridge_gas_note: 'Note: Ethereum Sepolia and Arbitrum Sepolia use ETH as gas. Only Arc uses USDC as gas.',
+  pay_qr_scan: 'Scan QR', pay_demo_hint: 'Demo · Scan QR to change merchant', pay_merchant_scanned: 'Merchant scanned',
+  faucet_cta: 'Get Now →',
+  stable_fee_badge: 'Fixed fee ~$0.001 · Stable · Arc EWMA',
+  settings_token_pending: 'Waiting for issuer', settings_token_soon: 'Coming soon',
+  settings_copy: 'Copy', settings_copied: 'Copied', settings_saved: 'Saved.', settings_per_day: '/ day',
+  bridge_title: 'Add USDC to Account', bridge_subtitle: 'Transfer from other chains · CCTP · ~8–20 seconds',
+  bridge_fee_note: 'Bridge fee: ~$0.001 on Arc · No hidden fees. CCTP permissionless — no sign-up required.',
+  bridge_source: 'Source', bridge_dest: 'Destination', bridge_amount: 'USDC Amount',
+  bridge_btn: 'Transfer {amount} USDC → Arc', bridge_success: 'Transfer Successful',
+  bridge_view_tx: 'View transaction', bridge_new: 'Transfer again',
+  bridge_gateway_teaser: 'Unified balance from multiple chains <500ms — no manual bridging needed',
+  gateway_title: 'Multi-chain Wallet', gateway_subtitle: 'Unified balance · No manual bridging',
+  gateway_deposit: 'Deposit to Multi-chain Wallet', gateway_balance: 'Available Balance',
+  gateway_coming_soon: 'Coming Soon', gateway_coming_desc: 'Multi-chain wallet will be available after mainnet launch.',
+  faucet_title: 'Get Free USDC', faucet_desc: 'Testnet faucet for testing',
+  faucet_btn: 'Get Now', faucet_balance: 'Current balance',
 }
 
 const ja: Translations = {
@@ -188,6 +274,34 @@ const ja: Translations = {
   error_connect_wallet: 'ログインしてください', error_wrong_chain: 'ネットワークを切り替えてください',
   error_invalid_amount: '無効な金額', error_invalid_address: '無効な口座番号',
   error_deploy_needed: 'この機能はテスト中です',
+  nav_ev: 'EV充電', nav_bridge: '入金', nav_gateway: 'マルチチェーン',
+  ev_title: 'EV充電ステーション', ev_subtitle: '自動計測 · 自動課金 · ワンタップで確認',
+  ev_start: '充電開始', ev_stop: '充電停止', ev_connecting: 'デバイスに接続中...',
+  ev_charging: '充電中', ev_confirming: '支払い処理中...', ev_success: '支払い完了',
+  ev_receipt: '領収書', ev_kwh: '電力使用量', ev_amount: '金額', ev_fee: '取引手数料',
+  ev_view_receipt: '領収書を見る', ev_new_session: '新しいセッション',
+  ev_demo_mode: 'デモモード', ev_device_id: 'デバイス', ev_power: '電力', ev_duration: '時間', ev_error: 'エラーが発生しました',
+  ev_charger_name: 'EV充電スタンド #001', ev_charger_desc: 'デモ · $0.20/kWh · B1階',
+  ev_charge_type_label: '充電タイプ', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: '料金', ev_fee_label: '手数料', ev_fee_fixed: '~$0.001 · 固定',
+  ev_toast_start: '充電セッション開始 · デモモード', ev_toast_done: '支払い完了 · デモモード',
+  bridge_step_approve: 'USDC承認', bridge_step_send: '送信元から送る', bridge_step_confirm: 'Circle確認', bridge_step_receive: 'Arcで受け取る',
+  bridge_transferring: '転送中...', bridge_progress: '進行状況',
+  bridge_gas_note: '注意：Ethereum SepoliaとArbitrum SepoliaはETHをガスとして使用します。ArcのみUSDCをガスとして使用します。',
+  pay_qr_scan: 'QRスキャン', pay_demo_hint: 'デモ · QRをスキャンして加盟店を変更', pay_merchant_scanned: '加盟店スキャン済み',
+  faucet_cta: '今すぐ受け取る →',
+  stable_fee_badge: '固定手数料 ~$0.001 · 安定 · Arc EWMA',
+  settings_token_pending: 'イシュアー待ち', settings_token_soon: '近日公開',
+  settings_copy: 'コピー', settings_copied: 'コピー済み', settings_saved: '保存済み。', settings_per_day: '/ 日',
+  bridge_title: 'USDCを入金', bridge_subtitle: '他チェーンから転送 · CCTP · 約8〜20秒',
+  bridge_fee_note: 'ブリッジ手数料: Arc上で約$0.001 · 隠れた手数料なし。',
+  bridge_source: '送信元', bridge_dest: '送信先', bridge_amount: 'USDC数量',
+  bridge_btn: '{amount} USDCをArcへ転送', bridge_success: '転送完了', bridge_view_tx: '取引を見る', bridge_new: '再転送',
+  bridge_gateway_teaser: '複数チェーンの残高を統合 <500ms',
+  gateway_title: 'マルチチェーンウォレット', gateway_subtitle: '統合残高 · 手動ブリッジ不要',
+  gateway_deposit: 'マルチチェーンウォレットに入金', gateway_balance: '利用可能残高',
+  gateway_coming_soon: '近日公開', gateway_coming_desc: 'メインネット後に利用可能になります。',
+  faucet_title: '無料USDCを受け取る', faucet_desc: 'テスト用フォーセット', faucet_btn: '今すぐ受け取る', faucet_balance: '現在の残高',
 }
 
 const ko: Translations = {
@@ -236,6 +350,34 @@ const ko: Translations = {
   error_connect_wallet: '로그인해 주세요', error_wrong_chain: '네트워크를 전환해 주세요',
   error_invalid_amount: '유효하지 않은 금액', error_invalid_address: '유효하지 않은 계좌번호',
   error_deploy_needed: '이 기능은 테스트 중입니다',
+  nav_ev: 'EV충전', nav_bridge: '입금', nav_gateway: '멀티체인',
+  ev_title: 'EV 충전소', ev_subtitle: '자동 측정 · 자동 요금 · 한 번 탭으로 확인',
+  ev_start: '충전 시작', ev_stop: '충전 중지', ev_connecting: '기기 연결 중...',
+  ev_charging: '충전 중', ev_confirming: '결제 처리 중...', ev_success: '결제 완료',
+  ev_receipt: '영수증', ev_kwh: '전력 사용량', ev_amount: '금액', ev_fee: '수수료',
+  ev_view_receipt: '영수증 보기', ev_new_session: '새 세션',
+  ev_demo_mode: '데모 모드', ev_device_id: '기기', ev_power: '전력', ev_duration: '시간', ev_error: '오류가 발생했습니다',
+  ev_charger_name: 'EV충전소 #001', ev_charger_desc: '데모 · $0.20/kWh · B1층',
+  ev_charge_type_label: '충전 유형', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: '요금', ev_fee_label: '거래 수수료', ev_fee_fixed: '~$0.001 · 고정',
+  ev_toast_start: '충전 세션 시작 · 데모 모드', ev_toast_done: '결제 완료 · 데모 모드',
+  bridge_step_approve: 'USDC 승인', bridge_step_send: '출처에서 전송', bridge_step_confirm: 'Circle 확인', bridge_step_receive: 'Arc에서 받기',
+  bridge_transferring: '전송 중...', bridge_progress: '진행 상황',
+  bridge_gas_note: '참고: Ethereum Sepolia와 Arbitrum Sepolia는 ETH를 가스로 사용합니다. Arc만 USDC를 가스로 사용합니다.',
+  pay_qr_scan: 'QR 스캔', pay_demo_hint: '데모 · QR 스캔으로 가맹점 변경', pay_merchant_scanned: '가맹점 스캔 완료',
+  faucet_cta: '지금 받기 →',
+  stable_fee_badge: '고정 수수료 ~$0.001 · 안정 · Arc EWMA',
+  settings_token_pending: '발행사 대기 중', settings_token_soon: '출시 예정',
+  settings_copy: '복사', settings_copied: '복사됨', settings_saved: '저장됨.', settings_per_day: '/ 일',
+  bridge_title: 'USDC 입금', bridge_subtitle: '다른 체인에서 전송 · CCTP · 약 8~20초',
+  bridge_fee_note: '브릿지 수수료: Arc에서 약 $0.001 · 숨겨진 수수료 없음.',
+  bridge_source: '출처', bridge_dest: '목적지', bridge_amount: 'USDC 수량',
+  bridge_btn: '{amount} USDC → Arc 전송', bridge_success: '전송 완료', bridge_view_tx: '거래 보기', bridge_new: '다시 전송',
+  bridge_gateway_teaser: '여러 체인의 잔액 통합 <500ms',
+  gateway_title: '멀티체인 지갑', gateway_subtitle: '통합 잔액 · 수동 브릿지 불필요',
+  gateway_deposit: '멀티체인 지갑에 입금', gateway_balance: '사용 가능 잔액',
+  gateway_coming_soon: '출시 예정', gateway_coming_desc: '메인넷 출시 후 이용 가능합니다.',
+  faucet_title: '무료 USDC 받기', faucet_desc: '테스트용 파우셋', faucet_btn: '지금 받기', faucet_balance: '현재 잔액',
 }
 
 const th: Translations = {
@@ -284,6 +426,34 @@ const th: Translations = {
   error_connect_wallet: 'กรุณาเข้าสู่ระบบก่อน', error_wrong_chain: 'กรุณาเปลี่ยนเครือข่าย',
   error_invalid_amount: 'จำนวนไม่ถูกต้อง', error_invalid_address: 'เลขบัญชีไม่ถูกต้อง',
   error_deploy_needed: 'ฟีเจอร์นี้อยู่ระหว่างการทดสอบ',
+  nav_ev: 'ชาร์จ EV', nav_bridge: 'เติมเงิน', nav_gateway: 'มัลติเชน',
+  ev_title: 'สถานีชาร์จ EV', ev_subtitle: 'วัดอัตโนมัติ · คิดเงินอัตโนมัติ · แตะครั้งเดียวยืนยัน',
+  ev_start: 'เริ่มชาร์จ', ev_stop: 'หยุดชาร์จ', ev_connecting: 'กำลังเชื่อมต่ออุปกรณ์...',
+  ev_charging: 'กำลังชาร์จ', ev_confirming: 'กำลังประมวลผลการชำระเงิน...', ev_success: 'ชำระเงินสำเร็จ',
+  ev_receipt: 'ใบเสร็จ', ev_kwh: 'พลังงานที่ใช้', ev_amount: 'จำนวนเงิน', ev_fee: 'ค่าธรรมเนียม',
+  ev_view_receipt: 'ดูใบเสร็จ', ev_new_session: 'เซสชันใหม่',
+  ev_demo_mode: 'โหมดสาธิต', ev_device_id: 'อุปกรณ์', ev_power: 'กำลังไฟ', ev_duration: 'ระยะเวลา', ev_error: 'เกิดข้อผิดพลาด',
+  ev_charger_name: 'สถานีชาร์จ EV #001', ev_charger_desc: 'สาธิต · $0.20/kWh · ชั้น B1',
+  ev_charge_type_label: 'ประเภทชาร์จ', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: 'ราคา', ev_fee_label: 'ค่าธรรมเนียม', ev_fee_fixed: '~$0.001 · คงที่',
+  ev_toast_start: 'เริ่มเซสชันชาร์จ · โหมดสาธิต', ev_toast_done: 'ชำระเงินสำเร็จ · โหมดสาธิต',
+  bridge_step_approve: 'อนุมัติ USDC', bridge_step_send: 'ส่งจากต้นทาง', bridge_step_confirm: 'ยืนยัน Circle', bridge_step_receive: 'รับบน Arc',
+  bridge_transferring: 'กำลังโอน...', bridge_progress: 'ความคืบหน้า',
+  bridge_gas_note: 'หมายเหตุ: Ethereum Sepolia และ Arbitrum Sepolia ใช้ ETH เป็นค่าแก๊ส มีเพียง Arc เท่านั้นที่ใช้ USDC เป็นค่าแก๊ส',
+  pay_qr_scan: 'สแกน QR', pay_demo_hint: 'สาธิต · สแกน QR เพื่อเปลี่ยนร้านค้า', pay_merchant_scanned: 'สแกนร้านค้าแล้ว',
+  faucet_cta: 'รับเลย →',
+  stable_fee_badge: 'ค่าธรรมเนียมคงที่ ~$0.001 · มั่นคง · Arc EWMA',
+  settings_token_pending: 'รอผู้ออก', settings_token_soon: 'เร็วๆ นี้',
+  settings_copy: 'คัดลอก', settings_copied: 'คัดลอกแล้ว', settings_saved: 'บันทึกแล้ว', settings_per_day: '/ วัน',
+  bridge_title: 'เติม USDC เข้าบัญชี', bridge_subtitle: 'โอนจากเชนอื่น · CCTP · ~8–20 วินาที',
+  bridge_fee_note: 'ค่าธรรมเนียม bridge: ~$0.001 บน Arc · ไม่มีค่าธรรมเนียมซ่อน',
+  bridge_source: 'ต้นทาง', bridge_dest: 'ปลายทาง', bridge_amount: 'จำนวน USDC',
+  bridge_btn: 'โอน {amount} USDC → Arc', bridge_success: 'โอนสำเร็จ', bridge_view_tx: 'ดูธุรกรรม', bridge_new: 'โอนอีกครั้ง',
+  bridge_gateway_teaser: 'ยอดรวมจากหลายเชน <500ms',
+  gateway_title: 'กระเป๋าเงินมัลติเชน', gateway_subtitle: 'ยอดรวม · ไม่ต้อง bridge เอง',
+  gateway_deposit: 'ฝากเข้ากระเป๋าเงินมัลติเชน', gateway_balance: 'ยอดคงเหลือ',
+  gateway_coming_soon: 'เร็วๆ นี้', gateway_coming_desc: 'จะพร้อมใช้งานหลังเปิดตัว mainnet',
+  faucet_title: 'รับ USDC ฟรี', faucet_desc: 'Faucet สำหรับทดสอบ', faucet_btn: 'รับเลย', faucet_balance: 'ยอดปัจจุบัน',
 }
 
 const zh: Translations = {
@@ -332,6 +502,34 @@ const zh: Translations = {
   error_connect_wallet: '請先登入', error_wrong_chain: '請切換網路',
   error_invalid_amount: '無效金額', error_invalid_address: '無效帳號',
   error_deploy_needed: '此功能正在測試中',
+  nav_ev: 'EV充電', nav_bridge: '儲值', nav_gateway: '多鏈',
+  ev_title: 'EV充電站', ev_subtitle: '自動計量 · 自動計費 · 一鍵確認',
+  ev_start: '開始充電', ev_stop: '停止充電', ev_connecting: '正在連接設備...',
+  ev_charging: '充電中', ev_confirming: '處理付款中...', ev_success: '付款成功',
+  ev_receipt: '收據', ev_kwh: '耗電量', ev_amount: '金額', ev_fee: '手續費',
+  ev_view_receipt: '查看收據', ev_new_session: '新充電', ev_demo_mode: '示範模式',
+  ev_device_id: '設備', ev_power: '功率', ev_duration: '時間', ev_error: '發生錯誤',
+  ev_charger_name: 'EV充電站 #001', ev_charger_desc: '示範 · $0.20/kWh · B1層',
+  ev_charge_type_label: '充電類型', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: '費率', ev_fee_label: '交易手續費', ev_fee_fixed: '~$0.001 · 固定',
+  ev_toast_start: '充電工作階段開始 · 示範模式', ev_toast_done: '付款成功 · 示範模式',
+  bridge_step_approve: '授權 USDC', bridge_step_send: '從來源發送', bridge_step_confirm: 'Circle 確認', bridge_step_receive: '在Arc接收',
+  bridge_transferring: '轉入中...', bridge_progress: '進度',
+  bridge_gas_note: '注意：Ethereum Sepolia 和 Arbitrum Sepolia 使用 ETH 作為手續費。只有 Arc 使用 USDC 作為手續費。',
+  pay_qr_scan: '掃描 QR', pay_demo_hint: '示範 · 掃描 QR 更換商家', pay_merchant_scanned: '商家已掃描',
+  faucet_cta: '立即領取 →',
+  stable_fee_badge: '固定手續費 ~$0.001 · 穩定 · Arc EWMA',
+  settings_token_pending: '等待發行商', settings_token_soon: '即將推出',
+  settings_copy: '複製', settings_copied: '已複製', settings_saved: '已儲存。', settings_per_day: '/ 天',
+  bridge_title: '儲值USDC', bridge_subtitle: '從其他鏈轉入 · CCTP · 約8–20秒',
+  bridge_fee_note: '橋接費: Arc上約$0.001 · 無隱藏費用',
+  bridge_source: '來源', bridge_dest: '目的地', bridge_amount: 'USDC數量',
+  bridge_btn: '轉入 {amount} USDC → Arc', bridge_success: '轉入成功', bridge_view_tx: '查看交易', bridge_new: '再次轉入',
+  bridge_gateway_teaser: '多鏈餘額統一 <500ms',
+  gateway_title: '多鏈錢包', gateway_subtitle: '統一餘額 · 無需手動橋接',
+  gateway_deposit: '存入多鏈錢包', gateway_balance: '可用餘額',
+  gateway_coming_soon: '即將推出', gateway_coming_desc: '主網上線後開放使用。',
+  faucet_title: '免費領取USDC', faucet_desc: '測試用水龍頭', faucet_btn: '立即領取', faucet_balance: '目前餘額',
 }
 
 const fil: Translations = {
@@ -380,6 +578,35 @@ const fil: Translations = {
   error_connect_wallet: 'Mag-login muna', error_wrong_chain: 'Palitan ang network',
   error_invalid_amount: 'Hindi wastong halaga', error_invalid_address: 'Hindi wastong account number',
   error_deploy_needed: 'Ang feature na ito ay nasa pagsubok pa',
+  nav_ev: 'EV Charge', nav_bridge: 'Mag-load', nav_gateway: 'Multi-chain',
+  ev_title: 'EV Charging Station', ev_subtitle: 'Auto-measure · Auto-bill · Isang tap para kumpirmahin',
+  ev_start: 'Simulan ang Pag-charge', ev_stop: 'Ihinto ang Pag-charge',
+  ev_connecting: 'Kumokonekta sa device...', ev_charging: 'Nagcha-charge',
+  ev_confirming: 'Pinoproseso ang bayad...', ev_success: 'Matagumpay na Bayad',
+  ev_receipt: 'Resibo', ev_kwh: 'Lakas na nagamit', ev_amount: 'Halaga', ev_fee: 'Bayad sa transaksyon',
+  ev_view_receipt: 'Tingnan ang resibo', ev_new_session: 'Bagong sesyon',
+  ev_demo_mode: 'Demo Mode', ev_device_id: 'Device', ev_power: 'Lakas', ev_duration: 'Tagal', ev_error: 'May naganap na error',
+  ev_charger_name: 'EV Station #001', ev_charger_desc: 'Demo · $0.20/kWh · Floor B1',
+  ev_charge_type_label: 'Uri ng Charge', ev_charge_type_val: 'AC Level 2 — 7.4 kW',
+  ev_price_label: 'Presyo', ev_fee_label: 'Bayad sa transaksyon', ev_fee_fixed: '~$0.001 · Naayos',
+  ev_toast_start: 'Nagsimula ang session · Demo Mode', ev_toast_done: 'Matagumpay na nabayaran · Demo Mode',
+  bridge_step_approve: 'Aprubahan USDC', bridge_step_send: 'Magpadala mula sa pinagmulan', bridge_step_confirm: 'Kumpirmahin Circle', bridge_step_receive: 'Tumanggap sa Arc',
+  bridge_transferring: 'Naglilipat...', bridge_progress: 'PROGRESO',
+  bridge_gas_note: 'Paalala: Gumagamit ng ETH bilang gas ang Ethereum Sepolia at Arbitrum Sepolia. Ang Arc lamang ang gumagamit ng USDC bilang gas.',
+  pay_qr_scan: 'I-scan ang QR', pay_demo_hint: 'Demo · I-scan ang QR para baguhin ang merchant', pay_merchant_scanned: 'Na-scan na ang merchant',
+  faucet_cta: 'Kumuha Na →',
+  stable_fee_badge: 'Nakatakdang bayad ~$0.001 · Matatag · Arc EWMA',
+  bridge_title: 'Mag-load ng USDC', bridge_subtitle: 'Maglipat mula sa ibang chain · CCTP · ~8–20 segundo',
+  bridge_fee_note: 'Bayad sa bridge: ~$0.001 sa Arc · Walang nakatagong bayad.',
+  bridge_source: 'Pinagmulan', bridge_dest: 'Patutunguhan', bridge_amount: 'Dami ng USDC',
+  bridge_btn: 'Ilipat ang {amount} USDC → Arc', bridge_success: 'Matagumpay na Paglipat',
+  bridge_view_tx: 'Tingnan ang transaksyon', bridge_new: 'Maglipat muli',
+  bridge_gateway_teaser: 'Pinagsanib na balanse mula sa maraming chain <500ms',
+  gateway_title: 'Multi-chain Wallet', gateway_subtitle: 'Pinagsanib na balanse · Hindi na kailangang mag-bridge',
+  gateway_deposit: 'Mag-deposito sa Multi-chain Wallet', gateway_balance: 'Available na Balanse',
+  gateway_coming_soon: 'Paparating na', gateway_coming_desc: 'Magiging available pagkatapos ng mainnet launch.',
+  faucet_title: 'Kumuha ng Libreng USDC', faucet_desc: 'Testnet faucet para sa pagsubok',
+  faucet_btn: 'Kumuha Na', faucet_balance: 'Kasalukuyang balanse',
 }
 
 const TRANSLATIONS: Record<LangCode, Translations> = { vi, en, fil, ja, ko, th, zh }

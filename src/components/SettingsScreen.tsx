@@ -2,7 +2,7 @@ import { useState, useCallback } from 'react'
 import { useAccount, useReadContract, useWriteContract, useWaitForTransactionReceipt, useBalance } from 'wagmi'
 import { erc20Abi } from 'viem'
 import { toast } from 'sonner'
-import { Shield, Clock, Info, ChevronRight, AlertTriangle, CheckCircle, Loader2, ExternalLink, Wallet, Copy, Check } from 'lucide-react'
+import { Shield, Clock, Info, ChevronRight, AlertTriangle, CheckCircle, Loader2, ExternalLink, Wallet, Copy, Check, ArrowDownToLine } from 'lucide-react'
 import { TokenBTC, TokenETH, TokenUSDC } from '@web3icons/react'
 import { getUsdc, buildTxExplorerUrl } from '@/onchain-facts'
 import { Amount } from '@/onchain-money'
@@ -134,11 +134,12 @@ function TokenBalanceRow({
 }
 
 interface SettingsScreenProps {
+  onNavigate?: (tab: string) => void
   lang: LangCode
   onChangeLang?: (l: LangCode) => void
 }
 
-export default function SettingsScreen({ lang, onChangeLang }: SettingsScreenProps) {
+export default function SettingsScreen({ lang, onChangeLang, onNavigate }: SettingsScreenProps) {
   const { address, isConnected } = useAccount()
   const [currentTier] = useState(1)
   const [showLimitForm, setShowLimitForm] = useState(false)
@@ -336,6 +337,29 @@ export default function SettingsScreen({ lang, onChangeLang }: SettingsScreenPro
             />
           ))}
         </div>
+
+        {/* ── CCTP: Nạp USDC từ chain khác ── */}
+        <button
+          onClick={() => onNavigate?.('bridge')}
+          className="w-full flex items-center gap-3 px-4 py-3 rounded-2xl mt-2 mb-1 transition-all active:scale-[0.98]"
+          style={{
+            background: 'linear-gradient(135deg, rgba(26,111,255,0.10) 0%, rgba(26,111,255,0.05) 100%)',
+            border: '1.5px solid rgba(26,111,255,0.20)',
+          }}>
+          <div className="w-8 h-8 rounded-xl flex items-center justify-center flex-shrink-0"
+            style={{ background: 'var(--accent)', color: 'white' }}>
+            <ArrowDownToLine size={15} />
+          </div>
+          <div className="flex-1 text-left">
+            <p className="text-sm font-semibold" style={{ color: 'var(--accent)' }}>
+              {t(lang, 'bridge_title')}
+            </p>
+            <p className="text-[11px] mt-0.5" style={{ color: 'var(--muted)' }}>
+              Base · Ethereum · Arbitrum → Arc · ~8–20s
+            </p>
+          </div>
+          <ChevronRight size={16} style={{ color: 'var(--accent)', opacity: 0.7 }} />
+        </button>
 
         {/* Circle Partner Stablecoins — announced, chờ issuer deploy lên Arc */}
         <div className="mt-1">

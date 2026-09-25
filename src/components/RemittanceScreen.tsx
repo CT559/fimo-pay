@@ -186,6 +186,12 @@ export default function RemittanceScreen({ lang }: RemittanceScreenProps) {
           {t(lang, 'send_title')}
         </h2>
         <p className="text-xs mt-0.5" style={{ color: 'var(--subtle)' }}>Arc Testnet · USDC</p>
+        <div className="flex items-center gap-1.5 mt-1.5">
+          <span className="w-1.5 h-1.5 rounded-full shrink-0" style={{ background: 'var(--success)' }} />
+          <span className="text-[10px] font-semibold" style={{ color: 'var(--success)' }}>
+            {t(lang, 'stable_fee_badge')}
+          </span>
+        </div>
       </div>
 
       {/* ── Bảng luồng tiền ── */}

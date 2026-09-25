@@ -371,6 +371,14 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
               {t(lang, 'pay_title')}
             </h2>
             <p className="text-xs mt-0.5" style={{ color: 'var(--subtle)' }}>Arc Testnet · USDC</p>
+          {/* Stable Fee badge */}
+          <div className="flex items-center gap-1.5 mt-1.5">
+            <span className="w-1.5 h-1.5 rounded-full shrink-0"
+              style={{ background: 'var(--success)' }} />
+            <span className="text-[10px] font-semibold" style={{ color: 'var(--success)' }}>
+              {t(lang, 'stable_fee_badge')}
+            </span>
+          </div>
           </div>
           {/* QR scan button */}
           <button
@@ -383,7 +391,7 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
               border: '1px solid rgba(26,111,255,0.2)',
             }}>
             <QrCode size={14} />
-            Quét QR
+            {t(lang, 'pay_qr_scan')}
           </button>
         </div>
 
@@ -394,7 +402,7 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
             border: `1px solid ${isDefaultMerchant ? 'rgba(204,140,0,0.2)' : 'rgba(15,122,69,0.2)'}`,
           }}>
           <span className="text-xs" style={{ color: isDefaultMerchant ? 'var(--warning-text)' : 'var(--success)' }}>
-            {isDefaultMerchant ? 'Demo · Quét QR để đổi merchant' : 'Merchant đã quét'}
+            {isDefaultMerchant ? t(lang, 'pay_demo_hint') : t(lang, 'pay_merchant_scanned')}
           </span>
           <span className="mono text-xs font-semibold" style={{ color: isDefaultMerchant ? 'var(--warning-text)' : 'var(--success)' }}>
             {shortMerchant}
