@@ -1,24 +1,19 @@
 import { useState, useEffect } from 'react'
 import { ConnectKitButton } from 'connectkit'
 import { useAccount } from 'wagmi'
-import { Home, Zap, Send, Settings, Wifi, User, Sun, Moon, ArrowDownToLine, BatteryCharging } from 'lucide-react'
+import { Home, ShoppingCart, Send, Settings, Wifi, User, Sun, Moon, ArrowDownToLine } from 'lucide-react'
 import { TokenUSDC } from '@web3icons/react'
 import { LogoWithFallback } from './components/FimoLogo'
-import PaymentScreen from './components/PaymentScreen'
+import CheckoutScreen from './components/CheckoutScreen'
 import RemittanceScreen from './components/RemittanceScreen'
 import SettingsScreen from './components/SettingsScreen'
 import BridgeScreen from './components/BridgeScreen'
-import GatewayScreen from './components/GatewayScreen'
-import ParkingScreen from './components/ParkingScreen'
-import VendingScreen from './components/VendingScreen'
-import CheckoutScreen from './components/CheckoutScreen'
-import EVChargerLive from './components/EVChargerLive'
 import FaucetButton from './components/FaucetButton'
 import LangPicker from './components/LangPicker'
 import type { LangCode } from './i18n'
 import { t } from './i18n'
 
-type Tab = 'home' | 'payment' | 'ev' | 'parking' | 'vending' | 'checkout' | 'remittance' | 'bridge' | 'gateway' | 'settings'
+type Tab = 'home' | 'checkout' | 'remittance' | 'bridge' | 'settings'
 
 /* ── Wave background — tái tạo nền fimoPAY brand ──────────────── */
 function WaveBg({ dark }: { dark: boolean }) {
@@ -75,54 +70,14 @@ function WaveBg({ dark }: { dark: boolean }) {
   )
 }
 
-// ── Service card icons (realistic, sát thực tế) ───────────────
-const SERVICE_ICONS = [
-  // EV Charging Station — xe điện + tia chớp
-  ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <path d="M2 17h14l2-6H4L2 17z" />
-      <path d="M2 17v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1" />
-      <path d="M14 17v2a1 1 0 0 0 1 1h1a1 1 0 0 0 1-1v-1" />
-      <circle cx="6"  cy="17" r="0.8" fill="currentColor" />
-      <circle cx="12" cy="17" r="0.8" fill="currentColor" />
-      <path d="M19 5l-2 5h3l-2 5" strokeWidth="1.6" />
-    </svg>
-  ),
-  // Smart Parking — biển P + ô vuông
-  ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="3" y="3" width="18" height="18" rx="3" />
-      <path d="M9 17V7h4.5a3 3 0 0 1 0 6H9" />
-    </svg>
-  ),
-  // Vending Machine — tủ bán hàng + ô cửa
-  ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="4" y="2" width="16" height="20" rx="2" />
-      <rect x="6" y="4" width="12" height="7" rx="1" />
-      <circle cx="9"  cy="7.5" r="1" fill="currentColor" />
-      <circle cx="12" cy="7.5" r="1" fill="currentColor" />
-      <circle cx="15" cy="7.5" r="1" fill="currentColor" />
-      <path d="M7 15h10M9 18h6" />
-    </svg>
-  ),
-  // Self-checkout — màn hình + barcode
-  ({ size }: { size: number }) => (
-    <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round">
-      <rect x="2" y="3" width="20" height="13" rx="2" />
-      <path d="M2 20h20" />
-      <path d="M7 8v4M9 7v5M11 8v4M13 7v5M15 8v4" strokeWidth="1.5" />
-      <path d="M17 10h.01" strokeWidth="2.5" />
-    </svg>
-  ),
-]
+
 
 
 
 // ── Home screen ───────────────────────────────────────────────
 interface HomeScreenProps {
+  dark?: boolean
   lang: LangCode
-  dark: boolean
   onNavigate: (tab: Tab) => void
 }
 
@@ -130,22 +85,24 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
   const { address, isConnected } = useAccount()
   const shortAddr = address ? `${address.slice(0, 6)}···${address.slice(-4)}` : ''
 
-  const services = [
-    { key: 'ev' as const,       labelKey: 'home_ev' as const,       descKey: 'home_ev_desc' as const },
-    { key: 'parking' as const,  labelKey: 'home_parking' as const,  descKey: 'home_parking_desc' as const },
-    { key: 'vending' as const,  labelKey: 'home_vending' as const,  descKey: 'home_vending_desc' as const },
-    { key: 'checkout' as const, labelKey: 'home_checkout' as const, descKey: 'home_checkout_desc' as const },
+  // Bảng tỷ giá tham chiếu (static demo — thực tế sẽ pull từ FX oracle)
+  const RATES = [
+    { flag: '🇻🇳', from: 'USDC', to: 'USDC',  rate: '1.00',  country: 'Việt Nam'    },
+    { flag: '🇵🇭', from: 'USDC', to: 'PHPC',  rate: '1.00',  country: 'Philippines' },
+    { flag: '🇰🇷', from: 'USDC', to: 'KRW1',  rate: '1,350', country: '한국'         },
+    { flag: '🇯🇵', from: 'USDC', to: 'JPYC',  rate: '153.4', country: '日本'         },
+    { flag: '🇹🇭', from: 'USDC', to: 'USDC',  rate: '1.00',  country: 'ไทย'         },
+    { flag: '🇹🇼', from: 'USDC', to: 'USDC',  rate: '1.00',  country: '台灣'         },
   ]
 
   return (
     <div className="flex flex-col gap-4">
 
-      {/* ── Hero ── */}
+      {/* ── Hero — kiều hối là trọng tâm ── */}
       <section className="glass-card rounded-3xl overflow-hidden">
-        {/* Spectral top strip */}
         <div className="h-[3px]" style={{ background: 'var(--spectral)' }} />
-
         <div className="p-5">
+
           {/* Status row */}
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center gap-1.5 px-2.5 py-1 rounded-full"
@@ -167,119 +124,96 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
             </div>
           </div>
 
-          {/* Tagline */}
-          <h1 className="display font-bold leading-[1.18] text-balance"
-            style={{ fontSize: 24, color: 'var(--ink)', marginBottom: 6 }}>
+          {/* Main tagline — kiều hối focused */}
+          <h1 className="display font-bold leading-[1.18]"
+            style={{ fontSize: 26, color: 'var(--ink)', marginBottom: 6 }}>
             {t(lang, 'home_tagline').split('\n').map((line, i) => (
               <span key={i}>
                 {i > 0 && <br />}
-                {i === 1
-                  ? <span style={{ color: 'var(--accent)' }}>{line}</span>
-                  : line}
+                {i === 1 ? <span style={{ color: 'var(--accent)' }}>{line}</span> : line}
               </span>
             ))}
           </h1>
-          <p className="text-[13px] leading-relaxed text-pretty"
+          <p className="text-[13px] leading-relaxed"
             style={{ color: 'var(--muted)', marginBottom: 20 }}>
             {t(lang, 'home_subtitle')}
           </p>
 
-          {/* CTA row */}
-          <div className="grid grid-cols-2 gap-2.5">
-            <button
-              onClick={() => onNavigate('payment')}
-              className="flex items-center justify-center gap-2 rounded-2xl font-semibold
-                transition-all hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                padding: '11px 16px',
-                fontSize: 13,
-                background: 'var(--accent)',
-                color: 'white',
-                boxShadow: '0 4px 16px rgba(26,111,255,0.28)',
-              }}>
-              <Zap size={14} strokeWidth={2.2} />
-              {t(lang, 'nav_pay')}
-            </button>
-            <button
-              onClick={() => onNavigate('remittance')}
-              className="flex items-center justify-center gap-2 rounded-2xl font-semibold
-                transition-all hover:scale-[1.02] active:scale-[0.98]"
-              style={{
-                padding: '11px 16px',
-                fontSize: 13,
-                background: 'var(--surface-muted)',
-                color: 'var(--ink-2)',
-                border: '1px solid var(--border)',
-              }}>
-              <Send size={14} strokeWidth={1.8} />
-              {t(lang, 'nav_send')}
-            </button>
-          </div>
+          {/* Primary CTA — kiều hối là nút lớn */}
+          <button
+            onClick={() => onNavigate('remittance')}
+            className="w-full flex items-center justify-center gap-2 rounded-2xl font-semibold
+              transition-all hover:scale-[1.01] active:scale-[0.98]"
+            style={{
+              padding: '14px 20px', fontSize: 15,
+              background: 'var(--accent)', color: 'white',
+              boxShadow: '0 6px 20px rgba(26,111,255,0.30)',
+            }}>
+            <Send size={16} strokeWidth={1.8} />
+            {t(lang, 'nav_send')}
+          </button>
+
+          {/* Fee promise */}
+          <p className="text-center text-[11px] mt-2.5" style={{ color: 'var(--muted)' }}>
+            Phí cố định ~$0.001 · Không ẩn · Arc EWMA
+          </p>
         </div>
       </section>
 
-      {/* ── Services section label ── */}
-      <div className="flex items-center gap-3 px-1 mt-1">
-        <span className="text-[11px] font-bold uppercase"
-          style={{ color: 'var(--subtle)', letterSpacing: '0.10em' }}>
-          {t(lang, 'home_services_title')}
-        </span>
-        <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
-      </div>
-
-      {/* ── Services grid ── */}
-      <div className="grid grid-cols-2 gap-3">
-        {services.map(({ key, labelKey, descKey }, idx) => {
-          const Icon = SERVICE_ICONS[idx]
-          return (
-            <button key={key}
-              onClick={() => onNavigate(key)}
-              className="glass-card rounded-2xl p-4 flex flex-col gap-3 text-left
-                transition-all hover:scale-[1.02] active:scale-[0.97]">
-              <div className="w-9 h-9 rounded-xl flex items-center justify-center"
-                style={{ background: 'var(--accent-soft)', color: 'var(--accent)' }}>
-                <Icon size={17} />
+      {/* ── Bảng tỷ giá tham chiếu ── */}
+      <section className="glass-card rounded-3xl p-4">
+        <div className="flex items-center gap-3 mb-3">
+          <span className="text-[11px] font-bold uppercase"
+            style={{ color: 'var(--subtle)', letterSpacing: '0.10em' }}>
+            {t(lang, 'home_services_title').split('·')[1]?.trim() ?? 'Tỷ giá'}
+          </span>
+          <div className="flex-1 h-px" style={{ background: 'var(--border)' }} />
+          <span className="text-[10px] px-1.5 py-0.5 rounded-md"
+            style={{ background: 'var(--surface-muted)', color: 'var(--subtle)' }}>
+            Demo
+          </span>
+        </div>
+        <div className="flex flex-col gap-1.5">
+          {RATES.map(r => (
+            <div key={r.flag} className="flex items-center gap-2.5 px-1 py-1.5 rounded-xl">
+              <span style={{ fontSize: 18, lineHeight: 1 }}>{r.flag}</span>
+              <span className="text-[12px] flex-1" style={{ color: 'var(--ink-2)' }}>{r.country}</span>
+              <div className="flex items-center gap-1.5">
+                <span className="text-[11px]" style={{ color: 'var(--muted)' }}>1 USDC →</span>
+                <span className="mono text-[12px] font-semibold" style={{ color: 'var(--accent)' }}>
+                  {r.rate} {r.to}
+                </span>
               </div>
-              <div>
-                <p className="text-[13px] font-semibold leading-snug" style={{ color: 'var(--ink)' }}>
-                  {t(lang, labelKey)}
-                </p>
-                <p className="text-[11px] mt-1 leading-snug" style={{ color: 'var(--muted)' }}>
-                  {t(lang, descKey)}
-                </p>
-              </div>
-            </button>
-          )
-        })}
-      </div>
+            </div>
+          ))}
+        </div>
+      </section>
 
-      {/* ── Remittance banner ── */}
-      <div className="glass-card rounded-2xl p-4 flex items-center gap-3.5">
+      {/* ── Thanh toán tại quầy (secondary) ── */}
+      <button
+        onClick={() => onNavigate('checkout')}
+        className="glass-card rounded-2xl p-4 flex items-center gap-3.5 text-left
+          transition-all hover:scale-[1.01] active:scale-[0.98] w-full">
         <div className="w-10 h-10 rounded-xl flex items-center justify-center shrink-0"
           style={{ background: 'var(--accent-soft)' }}>
-          <TokenUSDC size={22} variant="branded" />
+          <ShoppingCart size={18} style={{ color: 'var(--accent)' }} />
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-[13px] font-semibold leading-snug" style={{ color: 'var(--ink)' }}>
-            {t(lang, 'home_remit')}
+          <p className="text-[13px] font-semibold" style={{ color: 'var(--ink)' }}>
+            {t(lang, 'home_checkout')}
           </p>
-          <p className="text-[11px] mt-0.5 truncate leading-snug" style={{ color: 'var(--muted)' }}>
-            {t(lang, 'home_remit_desc')}
+          <p className="text-[11px] mt-0.5" style={{ color: 'var(--muted)' }}>
+            {t(lang, 'home_checkout_desc')}
           </p>
         </div>
-        <button
-          onClick={() => onNavigate('remittance')}
-          className="text-[12px] font-semibold px-3 py-1.5 rounded-xl shrink-0 transition-all
-            hover:scale-[1.04] active:scale-[0.97]"
-          style={{ background: 'var(--accent)', color: 'white',
-            boxShadow: '0 2px 10px rgba(26,111,255,0.22)' }}>
-          {t(lang, 'send_btn_next')} →
-        </button>
-      </div>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--subtle)"
+          strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+          <path d="M9 18l6-6-6-6"/>
+        </svg>
+      </button>
 
       {/* ── Onboarding / KYC banner ── */}
       {!isConnected ? (
-        /* Chưa đăng nhập — hướng dẫn đơn giản như Zalo/WhatsApp */
         <div className="rounded-2xl px-4 py-3.5 flex gap-3 items-center"
           style={{ background: 'var(--accent-soft)', border: '1px solid rgba(26,111,255,0.14)' }}>
           <div className="w-8 h-8 rounded-full flex-shrink-0 flex items-center justify-center"
@@ -291,7 +225,6 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
           </p>
         </div>
       ) : (
-        /* Đã đăng nhập nhưng chưa KYC — nhắc xác minh ngay */
         <div className="rounded-2xl px-4 py-3.5 flex gap-3 items-center cursor-pointer
           hover:scale-[1.01] active:scale-[0.99] transition-transform"
           onClick={() => onNavigate('settings')}
@@ -306,10 +239,10 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-[13px] font-semibold" style={{ color: '#92400e' }}>
-              Xác minh danh tính để dùng đầy đủ tính năng
+              {t(lang, 'kyc_prompt_title')}
             </p>
             <p className="text-[11px] mt-0.5" style={{ color: '#b45309' }}>
-              CCCD / hộ chiếu · xét duyệt nhanh → nâng hạn mức
+              {t(lang, 'kyc_prompt_desc')}
             </p>
           </div>
           <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#d97706"
@@ -319,7 +252,7 @@ function HomeScreen({ lang, onNavigate }: HomeScreenProps) {
         </div>
       )}
 
-      {/* ── Faucet — tự động hiện khi balance thấp ── */}
+      {/* ── Faucet ── */}
       <FaucetButton lang={lang} />
     </div>
   )
@@ -345,9 +278,8 @@ export default function App() {
 
   const NAV_ITEMS: { id: Tab; label: string; icon: typeof Home }[] = [
     { id: 'home',       label: t(lang, 'nav_home'),     icon: Home },
-    { id: 'payment',    label: t(lang, 'nav_pay'),      icon: Zap },
-    { id: 'ev',         label: t(lang, 'nav_ev'),       icon: BatteryCharging },
     { id: 'remittance', label: t(lang, 'nav_send'),     icon: Send },
+    { id: 'checkout',   label: t(lang, 'nav_pay'),      icon: ShoppingCart },
     { id: 'bridge',     label: t(lang, 'nav_bridge'),   icon: ArrowDownToLine },
     { id: 'settings',   label: t(lang, 'nav_settings'), icon: Settings },
   ]
@@ -419,14 +351,9 @@ export default function App() {
       {/* ── Content ── */}
       <main className="relative z-10 max-w-md mx-auto px-4 pt-5 pb-28">
         {activeTab === 'home'       && <HomeScreen lang={lang} dark={dark} onNavigate={setActiveTab} />}
-        {activeTab === 'payment'    && <PaymentScreen lang={lang} />}
-        {activeTab === 'ev'         && <EVChargerLive lang={lang} />}
-        {activeTab === 'parking'    && <ParkingScreen lang={lang} />}
-        {activeTab === 'vending'    && <VendingScreen lang={lang} />}
-        {activeTab === 'checkout'   && <CheckoutScreen lang={lang} />}
         {activeTab === 'remittance' && <RemittanceScreen lang={lang} />}
+        {activeTab === 'checkout'   && <CheckoutScreen lang={lang} />}
         {activeTab === 'bridge'     && <BridgeScreen lang={lang} />}
-        {activeTab === 'gateway'    && <GatewayScreen _lang={lang} />}
         {activeTab === 'settings'   && <SettingsScreen lang={lang} onChangeLang={setLang} onNavigate={tab => setActiveTab(tab as Tab)} />}
       </main>
 

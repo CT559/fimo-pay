@@ -376,7 +376,7 @@ export default function PaymentScreen({ lang }: PaymentScreenProps) {
             <span className="w-1.5 h-1.5 rounded-full shrink-0"
               style={{ background: 'var(--success)' }} />
             <span className="text-[10px] font-semibold" style={{ color: 'var(--success)' }}>
-              {t(lang, 'stable_fee_badge')}
+              Phí cố định ~$0.001 · Không dao động · Arc EWMA
             </span>
           </div>
           </div>

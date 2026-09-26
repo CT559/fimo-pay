@@ -50,10 +50,13 @@ type BridgeStep = {
 
 interface BridgeScreenProps { lang: LangCode }
 
+type FundTab = 'bridge' | 'onramp'
+
 export default function BridgeScreen({ lang }: BridgeScreenProps) {
   const { connector, isConnected, address, chainId: walletChainId } = useAccount()
   const { switchChainAsync } = useSwitchChain()
 
+  const [tab, setTab]           = useState<FundTab>('bridge')
   const [srcIdx, setSrcIdx]     = useState(0)
   const [amount, setAmount]     = useState('')
   const [steps, setSteps]       = useState<BridgeStep[]>([])
@@ -163,6 +166,87 @@ export default function BridgeScreen({ lang }: BridgeScreenProps) {
           {t(lang, 'bridge_subtitle')}
         </p>
       </div>
+
+      {/* ── Tab switcher ── */}
+      <div className="grid grid-cols-2 gap-1 rounded-xl p-1"
+        style={{ background: 'var(--surface-2)', border: '1px solid var(--stroke)' }}>
+        {(['bridge', 'onramp'] as FundTab[]).map(tb => (
+          <button key={tb} onClick={() => setTab(tb)}
+            className="rounded-lg py-2 text-xs font-semibold transition-all"
+            style={{
+              background: tab === tb ? 'var(--accent)' : 'transparent',
+              color: tab === tb ? '#fff' : 'var(--subtle)',
+            }}>
+            {tb === 'bridge'
+              ? (lang === 'vi' ? 'Từ chain khác' : lang === 'ja' ? '他チェーンから' : lang === 'ko' ? '다른 체인에서' : lang === 'th' ? 'จากเชนอื่น' : lang === 'zh' ? '從其他鏈' : lang === 'fil' ? 'Mula sa ibang chain' : 'From another chain')
+              : (lang === 'vi' ? 'Mua bằng thẻ / Apple Pay' : lang === 'ja' ? 'カードで購入' : lang === 'ko' ? '카드로 구매' : lang === 'th' ? 'ซื้อด้วยบัตร' : lang === 'zh' ? '用卡購買' : lang === 'fil' ? 'Bumili gamit card' : 'Buy with card')}
+          </button>
+        ))}
+      </div>
+
+      {/* ── Onramp tab ── */}
+      {tab === 'onramp' && (
+        <div className="rounded-2xl p-5 flex flex-col gap-4"
+          style={{ background: 'var(--surface)', border: '1px solid var(--stroke)' }}>
+          {/* Icon + title */}
+          <div className="flex items-center gap-3">
+            <div className="w-10 h-10 rounded-xl flex items-center justify-center"
+              style={{ background: 'var(--accent-soft)' }}>
+              <span style={{ fontSize: 20 }}>💳</span>
+            </div>
+            <div>
+              <p className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>
+                {lang === 'vi' ? 'Mua USDC bằng thẻ' : lang === 'ja' ? 'カードでUSDCを購入' : lang === 'ko' ? '카드로 USDC 구매' : lang === 'th' ? 'ซื้อ USDC ด้วยบัตร' : lang === 'zh' ? '用卡購買USDC' : lang === 'fil' ? 'Bumili USDC gamit card' : 'Buy USDC with card'}
+              </p>
+              <p className="text-xs" style={{ color: 'var(--subtle)' }}>
+                Visa · Mastercard · Apple Pay · Google Pay
+              </p>
+            </div>
+          </div>
+
+          {/* Steps */}
+          {[
+            lang === 'vi' ? 'Nhập số tiền muốn mua' : 'Enter amount',
+            lang === 'vi' ? 'Xác minh danh tính nhanh (1 lần)' : 'Quick KYC (one-time)',
+            lang === 'vi' ? 'Thanh toán bằng thẻ / Apple Pay' : 'Pay with card / Apple Pay',
+            lang === 'vi' ? 'USDC về ví trong vài phút' : 'USDC arrives in minutes',
+          ].map((step, i) => (
+            <div key={i} className="flex items-center gap-3">
+              <div className="w-6 h-6 rounded-full flex items-center justify-center text-xs font-bold"
+                style={{ background: 'var(--accent-soft)', color: 'var(--accent)', flexShrink: 0 }}>
+                {i + 1}
+              </div>
+              <span className="text-sm" style={{ color: 'var(--ink)' }}>{step}</span>
+            </div>
+          ))}
+
+          {/* Beta badge */}
+          <div className="rounded-xl px-3 py-2.5 flex items-start gap-2"
+            style={{ background: 'rgba(255,165,0,0.08)', border: '1px solid rgba(255,165,0,0.25)' }}>
+            <Info size={13} style={{ color: '#f59e0b', flexShrink: 0, marginTop: 1 }} />
+            <p className="text-xs leading-relaxed" style={{ color: '#92400e' }}>
+              {lang === 'vi'
+                ? 'Tính năng đang trong giai đoạn beta — cần Circle Onramp API key. Liên hệ Circle để được cấp quyền sớm nhất.'
+                : lang === 'ja' ? '現在ベータ版 — Circle Onramp APIキーが必要です。Circle にお問い合わせください。'
+                : lang === 'ko' ? '베타 진행 중 — Circle Onramp API 키 필요. Circle에 문의하세요.'
+                : lang === 'th' ? 'อยู่ในช่วงเบต้า — ต้องใช้ Circle Onramp API key ติดต่อ Circle'
+                : lang === 'zh' ? '目前為測試版 — 需要 Circle Onramp API 金鑰。請聯繫 Circle。'
+                : lang === 'fil' ? 'Beta pa — kailangan ng Circle Onramp API key. Makipag-ugnayan sa Circle.'
+                : 'In beta — requires Circle Onramp API key. Contact Circle for early access.'}
+            </p>
+          </div>
+
+          {/* CTA */}
+          <a href="https://console.circle.com" target="_blank" rel="noopener noreferrer"
+            className="flex items-center justify-center gap-2 rounded-xl py-3 text-sm font-semibold"
+            style={{ background: 'var(--accent)', color: '#fff' }}>
+            {lang === 'vi' ? 'Đăng ký sớm →' : lang === 'ja' ? '早期登録 →' : lang === 'ko' ? '조기 등록 →' : lang === 'th' ? 'ลงทะเบียนก่อน →' : lang === 'zh' ? '提前申請 →' : lang === 'fil' ? 'Mag-sign up →' : 'Get early access →'}
+          </a>
+        </div>
+      )}
+
+      {/* ── Bridge tab content (only shown when tab === 'bridge') ── */}
+      {tab === 'onramp' ? null : <>
 
       {/* ── Fee info ── */}
       <div className="flex items-start gap-2.5 rounded-xl px-3.5 py-3"
@@ -400,6 +484,8 @@ export default function BridgeScreen({ lang }: BridgeScreenProps) {
 
       {/* ── Faucet tích hợp ── */}
       <FaucetButton lang={lang} />
+
+      </> /* end bridge tab */}
     </div>
   )
 }

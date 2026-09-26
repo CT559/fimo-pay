@@ -167,10 +167,10 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
     if (!address) return
     navigator.clipboard.writeText(address).then(() => {
       setCopied(true)
-      toast.success('Đã copy địa chỉ ví')
+      toast.success(t(lang, 'settings_copied'))
       setTimeout(() => setCopied(false), 2000)
-    }).catch(() => toast.error('Không thể copy'))
-  }, [address])
+    }).catch(() => {})
+  }, [address, lang])
 
   return (
     <div className="flex flex-col gap-4">
@@ -209,7 +209,7 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
             <span className="display text-4xl font-bold tabular-nums" style={{ color: 'var(--ink)' }}>
               $500
             </span>
-            <span className="text-sm font-medium" style={{ color: 'var(--subtle)' }}>/ day</span>
+            <span className="text-sm font-medium" style={{ color: 'var(--subtle)' }}>{t(lang, 'settings_limit_day')}</span>
           </div>
 
           {/* Usage bar */}
@@ -255,7 +255,7 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
               {isSuccess && (
                 <div className="flex items-center gap-2 text-xs" style={{ color: 'var(--success)' }}>
                   <CheckCircle size={13} />
-                  <span>Saved.</span>
+                  <span>{t(lang, 'settings_saved')}</span>
                   {txUrl && (
                     <a href={txUrl} target="_blank" rel="noopener noreferrer"
                       className="flex items-center gap-0.5 underline">
@@ -301,8 +301,8 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
                 color: copied ? 'var(--success)' : 'var(--accent)',
               }}>
               {copied
-                ? <><Check size={11} /> Đã copy</>
-                : <><Copy size={11} /> Copy</>}
+                ? <><Check size={11} /> {t(lang, 'settings_copied')}</>
+                : <><Copy size={11} /> {t(lang, 'settings_copy_addr')}</>}
             </button>
           )}
         </div>
@@ -373,7 +373,7 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
               </div>
               <span className="text-[10px] px-2 py-0.5 rounded-full font-semibold"
                 style={{ background: 'rgba(251,191,36,0.12)', color: '#d97706', border: '1px solid rgba(217,119,6,0.2)' }}>
-                Chờ issuer
+                {t(lang, 'settings_waiting_issuer')}
               </span>
             </div>
           ))}
@@ -388,7 +388,7 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
               <span className="text-xs flex-1" style={{ color: 'var(--muted)' }}>{sym}</span>
               <span className="text-[10px] px-1.5 py-0.5 rounded-full"
                 style={{ background: 'var(--surface-muted)', color: 'var(--subtle)', border: '1px solid var(--border)' }}>
-                sắp ra mắt
+                {t(lang, 'settings_coming_soon_label')}
               </span>
             </div>
           ))}
@@ -426,7 +426,7 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
                 {active && (
                   <span className="text-[10px] font-bold uppercase px-2 py-0.5 rounded-full"
                     style={{ background: tier.color, color: 'white', opacity: 0.9 }}>
-                    Active
+                    {t(lang, 'settings_active')}
                   </span>
                 )}
               </div>
@@ -465,10 +465,10 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>Passkey</p>
-            <p className="text-[11px]" style={{ color: 'var(--muted)' }}>WebAuthn · sinh trắc học thiết bị</p>
+            <p className="text-[11px]" style={{ color: 'var(--muted)' }}>{t(lang, 'settings_passkey_desc')}</p>
           </div>
           <span className="text-[10px] font-bold px-2 py-0.5 rounded-full"
-            style={{ background: 'var(--accent)', color: 'white' }}>Đang dùng</span>
+            style={{ background: 'var(--accent)', color: 'white' }}>{t(lang, 'settings_passkey_active')}</span>
         </div>
 
         {/* Google Authenticator option */}
@@ -485,12 +485,12 @@ export default function SettingsScreen({ lang, onChangeLang, onNavigate }: Setti
           </div>
           <div className="flex-1 min-w-0">
             <p className="text-sm font-semibold" style={{ color: 'var(--ink)' }}>Google Authenticator</p>
-            <p className="text-[11px]" style={{ color: 'var(--muted)' }}>Mã OTP 6 số · tự đổi 30 giây</p>
+            <p className="text-[11px]" style={{ color: 'var(--muted)' }}>{t(lang, 'settings_ga_desc')}</p>
           </div>
           <button className="text-[11px] font-semibold px-2.5 py-1 rounded-lg transition-all active:scale-95"
             style={{ background: 'var(--surface-muted)', color: 'var(--accent)', border: '1px solid var(--border)' }}
-            onClick={() => toast.info('Tính năng sắp ra mắt')}>
-            Kích hoạt
+            onClick={() => toast.info(t(lang, 'settings_ga_soon'))}>
+            {t(lang, 'settings_ga_activate')}
           </button>
         </div>
 

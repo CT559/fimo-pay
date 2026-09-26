@@ -20,7 +20,6 @@ import { Loader2, CheckCircle, ExternalLink, Info, AlertTriangle } from 'lucide-
 import { getUsdc, getProtocolContractByName, buildTxExplorerUrl } from '@/onchain-facts'
 import { Amount } from '@/onchain-money'
 import type { LangCode } from '../i18n'
-import { t } from '../i18n'
 
 // ── Network kind — flip to 'mainnet' when going live ───────────
 const NETWORK_KIND: 'testnet' | 'mainnet' = 'testnet'
@@ -53,7 +52,7 @@ const GATEWAY_API = NETWORK_KIND === 'testnet'
   ? 'https://gateway-api-testnet.circle.com/v1'
   : 'https://gateway-api.circle.com/v1'
 
-export default function GatewayScreen({ _lang: lang }: { _lang: LangCode }) {
+export default function GatewayScreen({ _lang }: { _lang: LangCode }) {
   const { address, isConnected } = useAccount()
   const [depositAmount, setDepositAmount] = useState('')
   const [depositStep, setDepositStep] = useState<'idle' | 'approving' | 'depositing' | 'done'>('idle')
@@ -105,10 +104,10 @@ export default function GatewayScreen({ _lang: lang }: { _lang: LangCode }) {
 
   const handleDeposit = () => {
     if (!isConnected || !usdcAddr || !gwWalletAddr || !address) {
-      toast.error(t(lang, 'error_connect_wallet')); return
+      toast.error('Hãy kết nối tài khoản trước'); return
     }
     const amt = parseFloat(depositAmount)
-    if (isNaN(amt) || amt <= 0) { toast.error(t(lang, 'error_invalid_amount')); return }
+    if (isNaN(amt) || amt <= 0) { toast.error('Nhập số tiền hợp lệ'); return }
 
     const amtRaw = parseUnits(depositAmount, usdcDecimals)
     setDepositStep('approving')
@@ -137,13 +136,13 @@ export default function GatewayScreen({ _lang: lang }: { _lang: LangCode }) {
             toast.success(`Đã nạp ${depositAmount} USDC vào Gateway`)
           },
           onError: (e) => {
-            toast.error(t(lang, 'ev_error') + ': ' + e.message.slice(0, 60))
+            toast.error('Deposit thất bại: ' + e.message.slice(0, 60))
             setDepositStep('idle')
           },
         })
       },
       onError: (e) => {
-        toast.error(t(lang, 'ev_error') + ': ' + e.message.slice(0, 60))
+        toast.error('Approve thất bại: ' + e.message.slice(0, 60))
         setDepositStep('idle')
       },
     })
